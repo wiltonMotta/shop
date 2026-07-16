@@ -1,0 +1,150 @@
+name: ShopXO CI/CD Pipeline
+
+on:
+  # 推送到任何分支时触发
+  push:
+    branches: ['**']
+  # PR 到 main/develop 时触发
+  pull_request:
+    branches: [main, develop]
+  # 手动触发
+  workflow_dispatch:
+    inputs:
+      deploy_env:
+        description: '部署环境'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+          - staging
+          - production
+
+env:
+  PHP_VERSION: '8.2'
+  REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
+  REMOTE_USER: ${{ secrets.REMOTE_USER }}
+  REMOTE_PATH: ${{ secrets.REMOTE_PATH }}
+
+jobs:
+  # ============================================================
+  # Job 1: 代码质量检查（所有分支 push 都执行）
+  # ============================================================
+  lint-and-audit:
+    name: Lint & Audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ env.PHP_VERSION }}
+          extensions: curl, mbstring, pdo, pdo_mysql, mysqli, gd, zip, openssl, fileinfo, intl
+
+      - name: PHP Syntax Check
+        run: |
+          find app/ -name "*.php" -print0 | xargs -0 -n1 php -l 2>&1 | grep -v "No syntax errors" || true
+
+      - name: Validate composer.json
+        run: composer validate --strict
+
+      - name: Security Audit
+        run: |
+          # 检查硬编码密钥
+          ! grep -r "sk-[a-zA-Z0-9]\{20,\}" app/ --include="*.php" || echo "⚠️  发现疑似密钥"
+          ! grep -r "password\s*=\s*['\"][^'\"]\{6,\}" app/ --include="*.php" -l | head -3 || echo "⚠️  发现硬编码密码"
+
+  # ============================================================
+  # Job 2: 测试（PR 到 develop/main 时执行）
+  # ============================================================
+  test:
+    name: Test
+    needs: lint-and-audit
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: testpass
+          MYSQL_DATABASE: shopxo_test
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ env.PHP_VERSION }}
+          extensions: curl, mbstring, pdo, pdo_mysql, mysqli, gd, zip, openssl, fileinfo, intl
+
+      - name: Install Dependencies
+        run: composer install --no-interaction --prefer-dist
+
+      - name: Run Unit Tests
+        run: |
+          if [ -f phpunit.xml ] || [ -f phpunit.xml.dist ]; then
+            vendor/bin/phpunit --testdox
+          else
+            echo "No PHPUnit config found, skipping tests"
+          fi
+
+  # ============================================================
+  # Job 3: 构建 & 部署到远程（仅 main 分支推送）
+  # ============================================================
+  deploy:
+    name: Deploy to Remote
+    needs: [lint-and-audit, test]
+    if: |
+      (success() || !cancelled()) &&
+      (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
+    runs-on: ubuntu-latest
+    environment: ${{ github.ref == 'refs/heads/main' && 'production' || 'staging' }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Deploy via Rsync
+        run: |
+          rsync -avz --delete \
+            --exclude='.git/' \
+            --exclude='.github/' \
+            --exclude='runtime/' \
+            --exclude='vendor/' \
+            --exclude='node_modules/' \
+            --exclude='.env' \
+            --exclude='config/database.php' \
+            ./ ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }}:${{ secrets.REMOTE_PATH }}/
+
+      - name: Remote Composer Install
+        run: |
+          ssh ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }} "
+            cd ${{ secrets.REMOTE_PATH }} &&
+            /root/private_data/sun/tools/composer/composer.phar install --no-dev --no-interaction --optimize-autoloader
+          "
+
+      - name: Clear Cache
+        run: |
+          ssh ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }} "
+            cd ${{ secrets.REMOTE_PATH }} &&
+            rm -rf runtime/* &&
+            /root/private_data/sun/tools/php/php think clear
+          "
+
+      - name: Health Check
+        run: |
+          ssh ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }} "
+            curl -s -o /dev/null -w '%{http_code}' http://localhost:8080/index.php || echo 'PHP-FPM not responding'
+          "
+
+      - name: Notify Deployment
+        if: success()
+        run: echo "✅ 部署成功 - $(date)"

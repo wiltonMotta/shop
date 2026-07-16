@@ -1,0 +1,8 @@
+/**
+ * 订单二维码支付页面
+ */
+.qrcode-pay .name {
+    font-size: 2.8rem;
+    font-weight: 500;
+    margin-top: 2rem;
+}

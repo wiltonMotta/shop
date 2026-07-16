@@ -1,0 +1,28 @@
+<!-- 继承公共的 form -->
+{{extend name="../../../module/view/form_table/user_form" /}}
+
+<!-- 顶部导航内容 -->
+{{block name="form_navigation"}}
+    <div class="am-background-grey-f9 am-radius-lg am-flex am-flex-items-center am-flex-justify-center">
+        <div class="available am-padding-vertical-module am-flex-1 am-flex am-flex-items-center am-flex-justify-center">
+            <img src="{{$user_integral_header.available.icon}}" width="50">
+            <div class="am-padding-left-xs">
+                <div>{{$user_integral_header.available.name}}</div>
+                <div>
+                    <span class="am-text-xl am-font-weight">{{$user_integral_header.available.value}}</span>
+                    <em class="am-color-grey">{{$user_integral_header.available.unit}}</em>
+                </div>
+            </div>
+        </div>
+        <div class="locking am-padding-vertical-module am-flex-1 am-flex am-flex-items-center am-flex-justify-center">
+            <img src="{{$user_integral_header.locking.icon}}" width="50">
+            <div class="am-padding-left-xs">
+                <div class="am-color-grey-dark">{{$user_integral_header.locking.name}}</div>
+                <div>
+                    <span class="am-text-xl am-font-weight">{{$user_integral_header.locking.value}}</span>
+                    <em class="am-color-grey">{{$user_integral_header.locking.unit}}</em>
+                </div>
+            </div>
+        </div>
+    </div>
+{{/block}}

@@ -1,0 +1,138 @@
+# ShopXO 服装商城 — 项目配置汇总 (config.list)
+
+> 生成时间: 2026-07-16
+> 更新规则: 每次配置变更后同步更新本文件
+> 说明: 本文件仅记录非敏感的配置信息路径和说明，绝不包含真实凭据
+
+---
+
+## 一、项目基础信息
+
+| 配置项 | 值 | 说明 |
+|--------|-----|------|
+| 项目名称 | ShopXO 服装商城 | Clothing Mall |
+| 项目根目录 | `C:\Users\sugon\codewhaleWorkspace\shopXO` | 本地工作空间 |
+| 开源上游 | https://github.com/gongfuxiang/shopxo | ShopXO 主仓库 |
+| uniapp 仓库 | https://github.com/gongfuxiang/shopxo-uniapp | 小程序源码（独立仓库） |
+| 演示地址 | https://demo.shopxo.net/ | 官方演示 |
+| 文档地址 | https://doc.shopxo.net/ | 官方文档 |
+| 许可证 | MIT | |
+
+---
+
+## 二、技术栈版本
+
+| 组件 | 要求版本 | 当前版本 | 说明 |
+|------|----------|----------|------|
+| PHP | >= 8.0.0 | 待检测 | |
+| MySQL | >= 5.6 | 待检测 | utf8mb4 |
+| ThinkPHP | 8.x | 待确认 | topthink/framework |
+| Composer | 最新稳定版 | 待检测 | |
+| Node.js | >= 16 | 待检测 | uniapp 构建需要 |
+| npm/yarn | 最新稳定版 | 待检测 | |
+| Nginx | 1.18+ | 待检测 | 或 Apache |
+
+---
+
+## 三、核心配置文件路径
+
+| 文件 | 路径 | 说明 |
+|------|------|------|
+| 入口文件(前端) | `index.php` | PC + H5 |
+| 入口文件(后台) | `admin.php` | 管理后台 |
+| 入口文件(API) | `api.php` | 接口 |
+| 应用配置 | `config/app.php` | ThinkPHP 应用配置 |
+| 商城配置 | `config/shopxo.php` | ShopXO 核心配置 |
+| 数据库配置 | `config/database.php` | **安装后生成，不提交 Git** |
+| 缓存配置 | `config/cache.php` | |
+| Session 配置 | `config/session.php` | |
+| 日志配置 | `config/log.php` | |
+| 环境变量模板 | `example.env` | 不含真实凭据 |
+| 环境变量 | `.env` | **不提交 Git** |
+| 路由配置 | `config/route.php` | |
+| 中间件配置 | `config/middleware.php` | |
+| Composer 配置 | `composer.json` | PHP 依赖 |
+| SQL 初始脚本 | `config/shopxo.sql` | 安装时导入 |
+
+---
+
+## 四、CodeWhale 项目配置
+
+| 配置项 | 路径 | 说明 |
+|--------|------|------|
+| 宪法规则 | `.codewhale/constitution.md` | 项目级最高规则 |
+| 配置汇总 | `config.list` | 本文件 |
+| 对话日志 | `prompt.log` | 会话决策记录 |
+| Agent 角色 | `.codewhale/agents/` | 自定义 Agent 定义 |
+| Hooks | `.codewhale/hooks/` | Git + 自动化钩子 |
+| CI/CD 工作流 | `.github/workflows/` | GitHub Actions |
+| Skills 补丁 | `.codewhale/skills/` | 项目专属 Skill |
+
+---
+
+## 五、Git 分支规划
+
+| 分支 | 用途 | 状态 |
+|------|------|------|
+| `master` | 生产就绪 / 上游同步 | 当前 |
+| `develop` | 开发主线 | 未创建 |
+| `feature/clothing-theme` | 服装主题装修 | 未创建 |
+| `feature/membership` | 会员体系定制 | 未创建 |
+| `feature/wechat-miniapp` | 微信小程序 | 未创建 |
+| `feature/clothing-goods` | 服装商品管理 | 未创建 |
+
+---
+
+## 六、数据库信息
+
+| 配置项 | 值 | 说明 |
+|--------|-----|------|
+| 主机 | 127.0.0.1 | 本地开发 |
+| 端口 | 3306 | MySQL 默认 |
+| 数据库名 | shopxo_clothing | 待创建 |
+| 字符集 | utf8mb4 | |
+| 排序规则 | utf8mb4_general_ci | |
+
+---
+
+## 七、服务器与部署
+
+| 环境 | URL | 服务器 | 状态 |
+|------|-----|--------|------|
+| 本地开发 | http://localhost:8000 | PHP built-in | 待启动 |
+| 测试环境 | 待定 | 待定 | 未部署 |
+| 生产环境 | 待定 | 待定 | 未部署 |
+
+---
+
+## 八、第三方服务（待注册）
+
+| 服务 | 用途 | AppID | 状态 |
+|------|------|-------|------|
+| 微信小程序 | 小程序发布 | 申请中 | 🔄 |
+| 微信支付 | 支付功能 | 待申请 | ⬜ |
+| 支付宝小程序 | 扩展支持 | 待申请 | ⬜ |
+
+---
+
+## 九、CodeWhale 环境信息
+
+| 配置项 | 值 |
+|--------|-----|
+| CodeWhale 版本 | 0.8.67 |
+| 默认模型 | Qwen3.6-35B-A3B-FP8 (SCNet) |
+| 工作模式 | YOLO |
+| 已安装 Skills | delegate, documents, feishu, fleet-manager, mcp-builder, pdf, plugin-creator, presentations, skill-creator, skill-installer, spreadsheets, v4-best-practices |
+| 全局配置 | `C:\Users\sugon\.codewhale\config.toml` |
+
+---
+
+## 十、变更记录
+
+| 日期 | 变更内容 | 变更人 |
+|------|----------|--------|
+| 2026-07-16 | 初始化项目，创建宪法规则和配置汇总 | CodeWhale |
+
+---
+
+*本文件由 CodeWhale 自动维护，每次配置变更后更新。*
