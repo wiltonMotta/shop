@@ -1,0 +1,2316 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+<title>NixOS 从零到专业系统教程</title>
+<style>
+:root {
+  --bg: #fefefe;
+  --fg: #1a1a1a;
+  --code-bg: #f4f4f5;
+  --border: #e5e5e7;
+  --link: #2563eb;
+  --blockquote-border: #2563eb;
+  --blockquote-bg: #f0f7ff;
+  --heading-fg: #111;
+  --table-stripe: #f9fafb;
+  --inline-code-bg: #f1f1f3;
+  --pre-bg: #1e1e2e;
+  --pre-fg: #cdd6f4;
+  --toc-bg: #fafafa;
+  --shadow: rgba(0,0,0,0.06);
+  --hr: #d4d4d8;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1a1a1b;
+    --fg: #d4d4d8;
+    --code-bg: #27272a;
+    --border: #3f3f46;
+    --link: #60a5fa;
+    --blockquote-border: #60a5fa;
+    --blockquote-bg: #1e293b;
+    --heading-fg: #e4e4e7;
+    --table-stripe: #27272a;
+    --inline-code-bg: #3f3f46;
+    --pre-bg: #11111b;
+    --pre-fg: #cdd6f4;
+    --toc-bg: #222225;
+    --shadow: rgba(0,0,0,0.3);
+    --hr: #52525b;
+  }
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  line-height: 1.75;
+  color: var(--fg);
+  background: var(--bg);
+  padding: 0;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+/* Article container */
+article {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 1.2rem 1rem 3rem;
+}
+
+/* Headings */
+h1 {
+  font-size: 1.65rem;
+  font-weight: 800;
+  line-height: 1.35;
+  margin: 1.5rem 0 0.8rem;
+  color: var(--heading-fg);
+  border-bottom: 2px solid var(--border);
+  padding-bottom: 0.4rem;
+}
+
+h2 {
+  font-size: 1.35rem;
+  font-weight: 700;
+  line-height: 1.4;
+  margin: 1.5rem 0 0.6rem;
+  color: var(--heading-fg);
+}
+
+h3 {
+  font-size: 1.15rem;
+  font-weight: 600;
+  line-height: 1.45;
+  margin: 1.2rem 0 0.5rem;
+  color: var(--heading-fg);
+}
+
+h4 {
+  font-size: 1.05rem;
+  font-weight: 600;
+  margin: 1rem 0 0.4rem;
+  color: var(--heading-fg);
+}
+
+/* Paragraphs */
+p {
+  margin: 0.6rem 0;
+}
+
+/* Links */
+a {
+  color: var(--link);
+  text-decoration: none;
+  word-break: break-all;
+}
+a:hover {
+  text-decoration: underline;
+}
+
+/* Blockquotes */
+blockquote {
+  margin: 0.8rem 0;
+  padding: 0.5rem 0.9rem;
+  border-left: 3px solid var(--blockquote-border);
+  background: var(--blockquote-bg);
+  border-radius: 0 6px 6px 0;
+}
+blockquote p {
+  margin: 0.3rem 0;
+}
+
+/* Inline code */
+code {
+  font-family: "JetBrains Mono", "Fira Code", "Cascadia Code", "SF Mono", Consolas, "Source Code Pro", monospace;
+  background: var(--inline-code-bg);
+  padding: 0.1em 0.35em;
+  border-radius: 3px;
+  font-size: 0.88em;
+  word-break: break-word;
+}
+
+/* Code blocks */
+pre {
+  margin: 0.8rem 0;
+  padding: 0.9rem 0.85rem;
+  background: var(--pre-bg);
+  color: var(--pre-fg);
+  border-radius: 8px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  font-size: 0.82rem;
+  line-height: 1.55;
+}
+pre code {
+  background: none;
+  padding: 0;
+  border-radius: 0;
+  font-size: inherit;
+  color: inherit;
+}
+
+/* Tables */
+.table-wrapper {
+  margin: 0.8rem 0;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+  min-width: 400px;
+}
+thead {
+  background: var(--toc-bg);
+}
+th {
+  padding: 0.5rem 0.7rem;
+  text-align: left;
+  font-weight: 600;
+  border-bottom: 2px solid var(--border);
+  white-space: nowrap;
+}
+td {
+  padding: 0.45rem 0.7rem;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+tr:nth-child(even) td {
+  background: var(--table-stripe);
+}
+
+/* Lists */
+ul, ol {
+  margin: 0.5rem 0 0.5rem 1.4rem;
+}
+li {
+  margin: 0.2rem 0;
+}
+
+/* Horizontal rule */
+hr {
+  border: none;
+  border-top: 1px solid var(--hr);
+  margin: 1.5rem 0;
+}
+
+/* Strong / bold */
+strong {
+  font-weight: 700;
+}
+
+/* TOC (table of contents) */
+#toc {
+  background: var(--toc-bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.8rem 0.9rem;
+  margin: 1rem 0;
+  font-size: 0.9rem;
+}
+#toc summary {
+  font-weight: 700;
+  cursor: pointer;
+  font-size: 1rem;
+  margin-bottom: 0.3rem;
+  user-select: none;
+}
+#toc ul {
+  margin-left: 1.2rem;
+  list-style: none;
+}
+#toc li {
+  margin: 0.15rem 0;
+}
+#toc a {
+  color: var(--link);
+}
+
+/* Scroll to top */
+#scroll-top {
+  position: fixed;
+  bottom: 1.2rem;
+  right: 1rem;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--link);
+  color: #fff;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.3s;
+  box-shadow: 0 2px 8px var(--shadow);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+#scroll-top.visible {
+  opacity: 0.85;
+}
+#scroll-top:hover {
+  opacity: 1;
+}
+
+/* Print */
+@media print {
+  body { font-size: 12pt; }
+  #scroll-top { display: none; }
+}
+
+/* Very small screens */
+@media (max-width: 400px) {
+  article { padding: 0.8rem 0.7rem 2rem; }
+  h1 { font-size: 1.4rem; }
+  h2 { font-size: 1.2rem; }
+  pre { font-size: 0.75rem; padding: 0.7rem; }
+  th, td { padding: 0.35rem 0.5rem; font-size: 0.82rem; }
+}
+</style>
+</head>
+<body>
+<article>
+<h1 id="nixos-0">NixOS 从零到专业：面向 0 基础的系统性高效教程</h1>
+<blockquote>
+<p>适用对象：完全没有 Linux/NixOS 基础，但愿意动手练习、希望最终达到较专业水平的学习者。<br />
+练习环境：Win11 + VMware Workstation Pro 26H1 v26.0.0.25388281，主机内存 16G。<br />
+推荐练习 ISO：<code>nixos-graphical-26.05.5591.fd1462031fde-x86_64-linux.iso</code> 先上手，<code>nixos-minimal-26.05.5591.fd1462031fde-x86_64-linux.iso</code> 再进阶复盘。<br />
+核心学习法：先建立“为什么”，再练“怎么做”，最后背“高频固定件”。</p>
+</blockquote>
+<hr />
+<h2 id="0">0. 你学完后应该达到什么水平</h2>
+<p>学完本教程，你应该能做到：</p>
+<ol>
+<li><strong>理解 NixOS 的核心思想</strong>：为什么它不是“另一个 Linux 发行版”，而是一种声明式、可回滚、可复现的系统管理方法。</li>
+<li><strong>能在 VMware 中稳定安装和练习 NixOS 26.05</strong>：知道虚拟机怎么配、怎么联网、怎么分区、怎么装系统、怎么修常见问题。</li>
+<li><strong>能读懂和维护 <code>/etc/nixos/configuration.nix</code></strong>：会添加软件、用户、服务、桌面、网络、SSH、VMware guest tools。</li>
+<li><strong>掌握 Nix 的基本命令和 Nix 语言的最小核心</strong>：会用 <code>nix shell</code>、<code>nix run</code>、<code>nix develop</code>、<code>nix build</code>、<code>nixos-rebuild</code>，能看懂列表、属性集、函数、<code>let ... in ...</code>、<code>with</code>、<code>inherit</code>。</li>
+<li><strong>理解 Nix store、derivation、binary cache、profile、generation、rollback</strong>：不仅会用，还知道背后的原理。</li>
+<li><strong>能用 Flakes 管理系统配置</strong>：理解 <code>flake.nix</code>、<code>flake.lock</code>、<code>inputs</code>、<code>outputs</code>、<code>nixosConfigurations</code>。</li>
+<li><strong>具备专业进阶路径</strong>：Home Manager、打包、overlay、override、模块系统、服务管理、垃圾回收、升级、备份、迁移。</li>
+</ol>
+<hr />
+<h2 id="1">1. 学习地图：不要一上来就陷进命令海</h2>
+<p>NixOS 对 0 基础用户的难点不是命令多，而是它的“世界观”和传统 Linux 很不一样。建议按下面顺序学习：</p>
+<div class="codehilite"><pre><span></span><code>第 1 层：直觉模型
+  NixOS 到底解决什么问题？为什么 /nix/store 很重要？
+
+第 2 层：能跑起来
+  在 VMware 中安装 graphical ISO，完成第一次 nixos-rebuild switch。
+
+第 3 层：日常配置
+  软件、用户、SSH、桌面、网络、中文输入法、VMware guest tools。
+
+第 4 层：Nix 语言
+  属性集、列表、函数、let、with、import、模块选项。
+
+第 5 层：系统工程化
+  Flakes、Home Manager、模块拆分、Git 管理配置、回滚和升级。
+
+第 6 层：专业能力
+  打包、override、overlay、服务模块、二进制缓存、排错、迁移。
+</code></pre></div>
+
+<p>记忆口诀：</p>
+<blockquote>
+<p><strong>先懂店，后懂货，再懂账本。</strong><br />
+店 = NixOS 的系统模型；货 = 包和服务；账本 = <code>configuration.nix</code> / <code>flake.nix</code>。</p>
+</blockquote>
+<hr />
+<h2 id="2-nix">2. 从你给的文章开始：二进制分发、源码分发、Nix 之道</h2>
+<p>你给的链接是 NixOS-CN 的《二进制分发与源码分发》。这篇文章非常适合作为 NixOS 入门第一课，因为它解释了 Nix 为什么出现。</p>
+<h3 id="21">2.1 传统二进制分发：像“超市买现成菜”</h3>
+<p>以 Debian/Ubuntu 的 APT 为代表：</p>
+<div class="codehilite"><pre><span></span><code>软件仓库提前编译好包
+        ↓
+你的机器下载 .deb
+        ↓
+包管理器把文件放进 /usr/bin、/usr/lib、/etc 等位置
+</code></pre></div>
+
+<p>优点：</p>
+<ul>
+<li>安装快。</li>
+<li>用户不用本地编译。</li>
+<li>生态成熟。</li>
+</ul>
+<p>缺点：</p>
+<ul>
+<li>软件通常被装进全局目录，版本之间容易互相影响。</li>
+<li>想做定制变体比较麻烦。</li>
+<li>系统状态经常是“历史操作堆出来的”，时间久了很难复现。</li>
+</ul>
+<p>通俗比喻：</p>
+<blockquote>
+<p>APT 像把不同商家做好的菜统一摆进你家厨房。吃起来方便，但冰箱里东西越来越乱，哪道菜依赖哪瓶调料不总是清楚。</p>
+</blockquote>
+<h3 id="22">2.2 源码分发：像“拿菜谱回家现做”</h3>
+<p>以 Gentoo 的 Portage 为代表：</p>
+<div class="codehilite"><pre><span></span><code>下载构建脚本 ebuild
+        ↓
+拉源码
+        ↓
+按你的 USE flags、编译参数、本机环境编译
+        ↓
+安装
+</code></pre></div>
+
+<p>优点：</p>
+<ul>
+<li>高度定制。</li>
+<li>可以按机器特性优化。</li>
+<li>每台机器都能编译出适合自己的变体。</li>
+</ul>
+<p>缺点：</p>
+<ul>
+<li>编译耗时。</li>
+<li>对新手不友好。</li>
+<li>本机环境差异会带来复杂性。</li>
+</ul>
+<p>通俗比喻：</p>
+<blockquote>
+<p>Gentoo 像你自己做饭。想少盐、多辣、换油都可以，但每顿饭都要花时间做。</p>
+</blockquote>
+<h3 id="23-nix">2.3 Nix 的答案：菜谱、成品、冰箱格子全都带编号</h3>
+<p>Nix 的核心想法：</p>
+<blockquote>
+<p>用 Nix 语言描述“如何构建一个包”，把所有输入记录下来，然后把输出放到 <code>/nix/store/&lt;hash&gt;-&lt;name&gt;</code> 这样的不可变路径里。</p>
+</blockquote>
+<p>例如：</p>
+<div class="codehilite"><pre><span></span><code>/nix/store/7wzgkjk6l9ng015wnx7dbzq73v4yr97g-nyancat-1.5.2
+</code></pre></div>
+
+<p>这个路径中的哈希值由构建输入决定，输入包括：</p>
+<ul>
+<li>包名和版本。</li>
+<li>源码 URL 与源码哈希。</li>
+<li>依赖。</li>
+<li>编译工具。</li>
+<li>编译参数。</li>
+<li>补丁。</li>
+<li>测试和元数据。</li>
+</ul>
+<p>所以 Nix 同时获得了二进制分发和源码分发的优点：</p>
+<div class="codehilite"><pre><span></span><code>如果缓存里已有完全相同输入构建出的结果：下载二进制缓存，快。
+如果缓存里没有：按表达式从源码构建，灵活。
+</code></pre></div>
+
+<p>记忆口诀：</p>
+<blockquote>
+<p><strong>APT 问：我要装什么？</strong><br />
+<strong>Gentoo 问：我要怎么编？</strong><br />
+<strong>Nix 问：这个结果由哪些输入唯一决定？</strong></p>
+</blockquote>
+<h3 id="24-nixos-nix">2.4 NixOS 比 Nix 更进一步</h3>
+<p>Nix 是包管理器。NixOS 是基于 Nix 的 Linux 发行版。</p>
+<p>Nix 管包：</p>
+<div class="codehilite"><pre><span></span><code>安装 firefox、git、vim、python
+</code></pre></div>
+
+<p>NixOS 管整台系统：</p>
+<div class="codehilite"><pre><span></span><code>用户是谁
+服务开不开
+内核怎么配
+引导器怎么装
+SSH 开不开
+桌面环境是什么
+/etc 里的配置文件如何生成
+</code></pre></div>
+
+<p>核心一句话：</p>
+<blockquote>
+<p><strong>NixOS 把“系统状态”从手工操作变成一份可版本管理的配置文件。</strong></p>
+</blockquote>
+<hr />
+<h2 id="3-nixos-10">3. NixOS 的 10 个核心概念：先背框架，再填细节</h2>
+<h3 id="31-nixstore">3.1 <code>/nix/store</code>：不可变仓库</h3>
+<p>所有包都放在 <code>/nix/store</code>：</p>
+<div class="codehilite"><pre><span></span><code>/nix/store/&lt;hash&gt;-firefox-xxx
+/nix/store/&lt;hash&gt;-openssl-xxx
+/nix/store/&lt;hash&gt;-bash-xxx
+</code></pre></div>
+
+<p>每个路径带哈希，因此不同版本、不同构建参数的包可以同时存在。</p>
+<p>你要记住：</p>
+<div class="codehilite"><pre><span></span><code>传统 Linux：很多软件共享 /usr/bin、/usr/lib
+Nix/NixOS：每个构建结果有自己的 /nix/store/hash-name
+</code></pre></div>
+
+<h3 id="32-derivation">3.2 derivation：构建任务说明书</h3>
+<p>derivation 可以理解为“构建一个东西的完整说明书”：</p>
+<ul>
+<li>源码从哪里来。</li>
+<li>用哪些依赖。</li>
+<li>怎么编译。</li>
+<li>怎么安装到输出目录。</li>
+</ul>
+<h3 id="33-binary-cache">3.3 binary cache：别人已经做好的一模一样成品</h3>
+<p>Nix 通常先查二进制缓存，例如官方缓存：</p>
+<div class="codehilite"><pre><span></span><code>https://cache.nixos.org
+</code></pre></div>
+
+<p>如果缓存里有，就下载；没有才本地构建。</p>
+<h3 id="34-profile">3.4 profile：用户当前使用的一组包</h3>
+<p>profile 可以理解为“当前启用的软件清单”。Nix 可以让不同用户有不同 profile。</p>
+<h3 id="35-generation">3.5 generation：系统历史版本</h3>
+<p>每次 <code>nixos-rebuild switch</code> 成功，都会生成一个新的系统 generation。</p>
+<p>好处：</p>
+<ul>
+<li>配错了可以回滚。</li>
+<li>引导菜单可以选择旧版本启动。</li>
+<li>升级失败不等于系统报废。</li>
+</ul>
+<h3 id="36-rollback">3.6 rollback：回到旧版本</h3>
+<p>常见回滚方式：</p>
+<div class="codehilite"><pre><span></span><code>sudo<span class="w"> </span>nixos-rebuild<span class="w"> </span>switch<span class="w"> </span>--rollback
+</code></pre></div>
+
+<p>或者开机时在 boot menu 选择旧 generation。</p>
+<h3 id="37-declarative-configuration">3.7 declarative configuration：声明式配置</h3>
+<p>传统方式：</p>
+<div class="codehilite"><pre><span></span><code>sudo<span class="w"> </span>apt<span class="w"> </span>install<span class="w"> </span>nginx
+sudo<span class="w"> </span>systemctl<span class="w"> </span><span class="nb">enable</span><span class="w"> </span>nginx
+sudo<span class="w"> </span>vim<span class="w"> </span>/etc/nginx/nginx.conf
+</code></pre></div>
+
+<p>NixOS 方式：</p>
+<div class="codehilite"><pre><span></span><code>services<span class="o">.</span>nginx<span class="o">.</span><span class="ss">enable</span> <span class="o">=</span> <span class="no">true</span><span class="p">;</span>
+</code></pre></div>
+
+<p>然后：</p>
+<div class="codehilite"><pre><span></span><code>sudo<span class="w"> </span>nixos-rebuild<span class="w"> </span>switch
+</code></pre></div>
+
+<p>声明式思维是：</p>
+<blockquote>
+<p>我不描述“我做了哪些步骤”，我描述“系统应该长什么样”。</p>
+</blockquote>
+<h3 id="38-module-system">3.8 module system：配置不是一堆脚本，而是一套选项系统</h3>
+<p>NixOS 的配置像这样：</p>
+<div class="codehilite"><pre><span></span><code>services<span class="o">.</span>openssh<span class="o">.</span><span class="ss">enable</span> <span class="o">=</span> <span class="no">true</span><span class="p">;</span>
+networking<span class="o">.</span><span class="ss">hostName</span> <span class="o">=</span> <span class="s2">&quot;nixos-vm&quot;</span><span class="p">;</span>
+environment<span class="o">.</span><span class="ss">systemPackages</span> <span class="o">=</span> <span class="k">with</span> pkgs<span class="p">;</span> <span class="p">[</span> git vim htop <span class="p">];</span>
+</code></pre></div>
+
+<p>这些不是随便写的变量，而是 NixOS 模块系统定义好的 options。</p>
+<p>查选项的地方：</p>
+<ul>
+<li>NixOS options search：<code>https://search.nixos.org/options</code></li>
+<li>本机也可用：<code>man configuration.nix</code>、<code>nixos-option</code></li>
+</ul>
+<h3 id="39-flakes">3.9 Flakes：把输入版本锁住</h3>
+<p>Flakes 用 <code>flake.lock</code> 固定依赖版本，减少“昨天能用，今天不能用”的情况。</p>
+<p>注意：官方文档仍把 Flakes 标为 experimental，但社区已经广泛使用。</p>
+<h3 id="310-home-manager">3.10 Home Manager：用户家目录的声明式配置</h3>
+<p>NixOS 管系统，Home Manager 管用户环境，例如：</p>
+<ul>
+<li>shell 配置。</li>
+<li>git 配置。</li>
+<li>neovim 配置。</li>
+<li>用户级软件。</li>
+<li>dotfiles。</li>
+</ul>
+<hr />
+<h2 id="4-isonixos-26055591fd1462031fde">4. 你的 ISO：NixOS 26.05.5591.fd1462031fde 信息</h2>
+<p>你提到的两个 ISO 来自 NixOS 26.05 稳定分支的某次构建：</p>
+<div class="codehilite"><pre><span></span><code>release: nixos-26.05.5591.fd1462031fde
+commit: fd1462031fdee08f65fd0b4c6b64e22239a77870
+released: 2026-07-19 17:57:06 UTC
+</code></pre></div>
+
+<p>两个 x86_64 ISO 的官方元数据：</p>
+<div class="table-wrapper"><table>
+<thead>
+<tr>
+<th>ISO</th>
+<th style="text-align: right;">大小</th>
+<th>SHA-256</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>nixos-minimal-26.05.5591.fd1462031fde-x86_64-linux.iso</code></td>
+<td style="text-align: right;">1,694,498,816 bytes，约 1.58 GiB</td>
+<td><code>9b64aabb0919126204f6da9193ac3bab2b3da46fa33ae9818cad567c65d75e61</code></td>
+</tr>
+<tr>
+<td><code>nixos-graphical-26.05.5591.fd1462031fde-x86_64-linux.iso</code></td>
+<td style="text-align: right;">3,825,205,248 bytes，约 3.56 GiB</td>
+<td><code>d2d712f074ad24efa3dbb8e22d9bc9752ff4158f57a4a1947f19ba2e9f783f58</code></td>
+</tr>
+</tbody>
+</table></div>
+<p>在 Win11 PowerShell 中校验 ISO：</p>
+<div class="codehilite"><pre><span></span><code><span class="nb">Get-FileHash</span> <span class="p">.\</span><span class="n">nixos-minimal</span><span class="p">-</span><span class="n">26</span><span class="p">.</span><span class="n">05</span><span class="p">.</span><span class="n">5591</span><span class="p">.</span><span class="n">fd1462031fde-x86_64-linux</span><span class="p">.</span><span class="n">iso</span> <span class="n">-Algorithm</span> <span class="n">SHA256</span>
+<span class="nb">Get-FileHash</span> <span class="p">.\</span><span class="n">nixos-graphical</span><span class="p">-</span><span class="n">26</span><span class="p">.</span><span class="n">05</span><span class="p">.</span><span class="n">5591</span><span class="p">.</span><span class="n">fd1462031fde-x86_64-linux</span><span class="p">.</span><span class="n">iso</span> <span class="n">-Algorithm</span> <span class="n">SHA256</span>
+</code></pre></div>
+
+<p>把输出的 <code>Hash</code> 与上表 SHA-256 对上后再安装。</p>
+<p>NixOS 26.05 版本代号：</p>
+<div class="codehilite"><pre><span></span><code>Yarara
+</code></pre></div>
+
+<p>一个重要变化：</p>
+<blockquote>
+<p>NixOS 26.05 默认的 Stage 1/initrd 基于 systemd；旧的 scripted initrd 实现已被弃用，并计划在 26.11 移除。</p>
+</blockquote>
+<p>对初学者来说，这个变化平时不用特别操作，但你要知道：系统很早期的启动阶段也在向 systemd 方案迁移。</p>
+<h3 id="41-minimal-graphical">4.1 选 minimal 还是 graphical？</h3>
+<p>建议：</p>
+<div class="codehilite"><pre><span></span><code>第一次：用 graphical ISO，降低挫败感，先成功安装。
+第二次：用 minimal ISO，手动分区和安装，真正理解过程。
+</code></pre></div>
+
+<p>对比：</p>
+<div class="table-wrapper"><table>
+<thead>
+<tr>
+<th>ISO</th>
+<th>适合谁</th>
+<th>优点</th>
+<th>缺点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>graphical</td>
+<td>0 基础、先想跑起来</td>
+<td>有图形界面和图形安装器，容易成功</td>
+<td>对底层安装步骤理解少一些</td>
+</tr>
+<tr>
+<td>minimal</td>
+<td>想认真学习 Linux/NixOS 安装过程</td>
+<td>强迫你理解分区、挂载、配置生成、安装</td>
+<td>新手容易卡在命令和设备名</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2 id="5-vmware-workstation-pro-26h1">5. VMware Workstation Pro 26H1 推荐配置</h2>
+<p>你的主机：Win11，16G 内存。NixOS 学习虚拟机不建议配太满，否则 Windows 本机卡，学习体验反而差。</p>
+<h3 id="51">5.1 推荐配置表</h3>
+<div class="table-wrapper"><table>
+<thead>
+<tr>
+<th>用途</th>
+<th style="text-align: right;">CPU</th>
+<th style="text-align: right;">内存</th>
+<th style="text-align: right;">磁盘</th>
+<th>显存/3D</th>
+<th>ISO</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>轻量命令行学习</td>
+<td style="text-align: right;">2 vCPU</td>
+<td style="text-align: right;">2G-3G</td>
+<td style="text-align: right;">30G</td>
+<td>不重要</td>
+<td>minimal</td>
+</tr>
+<tr>
+<td>推荐日常学习</td>
+<td style="text-align: right;">2 vCPU</td>
+<td style="text-align: right;">4G</td>
+<td style="text-align: right;">40G-60G</td>
+<td>开启 3D</td>
+<td>graphical</td>
+</tr>
+<tr>
+<td>GNOME/KDE 桌面练习</td>
+<td style="text-align: right;">2-4 vCPU</td>
+<td style="text-align: right;">6G</td>
+<td style="text-align: right;">60G</td>
+<td>开启 3D，显存尽量高</td>
+<td>graphical</td>
+</tr>
+<tr>
+<td>编译/打包练习</td>
+<td style="text-align: right;">4 vCPU</td>
+<td style="text-align: right;">6G-8G</td>
+<td style="text-align: right;">80G+</td>
+<td>不重要</td>
+<td>任意</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>我给你的默认推荐：</strong></p>
+<div class="codehilite"><pre><span></span><code>CPU: 2 processors / 2 cores total，或 1 processor × 2 cores
+Memory: 4096 MB；如果跑 GNOME/KDE，建议 6144 MB
+Disk: 60 GB，single virtual disk file 或 split 均可
+Firmware: UEFI
+Network: NAT
+OS type: Linux / Other Linux 6.x kernel 64-bit，若没有就选 Other Linux 5.x or later kernel 64-bit
+Display: Accelerate 3D graphics enabled
+</code></pre></div>
+
+<p>为什么这样配：</p>
+<ul>
+<li>16G 主机给虚拟机 4G-6G 比较稳，Windows 仍有余量。</li>
+<li>NixOS 的 <code>/nix/store</code> 会积累多个 generation 和包，磁盘别太小。</li>
+<li>NAT 最省心，通常开机就能联网。</li>
+<li>UEFI 更接近现代机器，也适合 <code>systemd-boot</code>。</li>
+</ul>
+<h3 id="52">5.2 新建虚拟机步骤</h3>
+<p>在 VMware Workstation Pro 中：</p>
+<ol>
+<li>点击 <strong>Create a New Virtual Machine</strong>。</li>
+<li>选择 <strong>Custom (advanced)</strong>，这样能手动控制细节。</li>
+<li>硬件兼容性保持默认即可。</li>
+<li>选择 <strong>Installer disc image file (iso)</strong>，指向你的 NixOS ISO。</li>
+<li>如果 VMware 无法识别 NixOS，Guest OS 选：</li>
+</ol>
+<div class="codehilite"><pre><span></span><code>Linux
+Other Linux 6.x kernel 64-bit
+</code></pre></div>
+
+<p>如果没有 6.x，就选类似：</p>
+<div class="codehilite"><pre><span></span><code>Other Linux 5.x or later kernel 64-bit
+</code></pre></div>
+
+<ol>
+<li>虚拟机名称建议：</li>
+</ol>
+<div class="codehilite"><pre><span></span><code>NixOS-26.05-Lab
+</code></pre></div>
+
+<ol>
+<li>Firmware type 选择：</li>
+</ol>
+<div class="codehilite"><pre><span></span><code>UEFI
+</code></pre></div>
+
+<p>如果有 Secure Boot 选项，建议先关闭。NixOS 安装介质的 EFI bootloader 不依赖你在 VMware 里开 Secure Boot，新手阶段关闭更省心。</p>
+<ol>
+<li>CPU：</li>
+</ol>
+<div class="codehilite"><pre><span></span><code>Number of processors: 1
+Number of cores per processor: 2
+</code></pre></div>
+
+<p>如果后期编译多，可以改为 2×2 或总 4 vCPU。</p>
+<ol>
+<li>内存：</li>
+</ol>
+<div class="codehilite"><pre><span></span><code>4096 MB
+</code></pre></div>
+
+<p>图形桌面卡顿时改为：</p>
+<div class="codehilite"><pre><span></span><code>6144 MB
+</code></pre></div>
+
+<ol>
+<li>网络：</li>
+</ol>
+<div class="codehilite"><pre><span></span><code>Use network address translation (NAT)
+</code></pre></div>
+
+<ol>
+<li>I/O controller：默认推荐即可，通常 LSI Logic 或 VMware Paravirtual 都能用。新手不用纠结。</li>
+<li>Virtual disk type：默认 SCSI/NVMe 均可。若不确定，保持 VMware 推荐。</li>
+<li>磁盘大小：</li>
+</ol>
+<div class="codehilite"><pre><span></span><code>60 GB
+</code></pre></div>
+
+<p>选择：</p>
+<div class="codehilite"><pre><span></span><code>Store virtual disk as a single file
+</code></pre></div>
+
+<p>或者 split 也可以。单文件性能和管理直观些，split 便于移动。</p>
+<ol>
+<li>完成创建后，进入 <strong>Virtual Machine Settings</strong> 再检查：</li>
+</ol>
+<div class="codehilite"><pre><span></span><code>CD/DVD: 指向 NixOS ISO，并勾选 Connect at power on
+Display: 勾选 Accelerate 3D graphics
+Network Adapter: NAT
+</code></pre></div>
+
+<h3 id="53-nixos">5.3 快照策略：学习 NixOS 必须善用快照</h3>
+<p>建议创建这些 VMware snapshots：</p>
+<div class="codehilite"><pre><span></span><code>S0-刚创建虚拟机未安装
+S1-图形安装完成首次启动
+S2-基础配置可用
+S3-启用 flakes 前
+S4-拆分模块前
+</code></pre></div>
+
+<p>学习建议：</p>
+<blockquote>
+<p>NixOS 自带 generation rollback，VMware 又有 snapshot。前者回滚系统配置，后者回滚整个虚拟磁盘。新手两个都用，安全感会强很多。</p>
+</blockquote>
+<hr />
+<h2 id="6-graphical-iso">6. 第一次安装：用 graphical ISO 跑起来</h2>
+<p>目标：先成功，不追求一步到位。</p>
+<h3 id="61-iso">6.1 启动 ISO</h3>
+<p>启动虚拟机后，你会看到 NixOS boot menu。graphical ISO 通常允许选择不同桌面环境启动。注意：</p>
+<blockquote>
+<p>你在 live ISO 中选择的桌面环境，不一定决定最终安装后的桌面环境；最终安装以安装器和 NixOS 配置为准。</p>
+</blockquote>
+<p>如果进入图形界面后分辨率不合适：</p>
+<ul>
+<li>先尝试 VMware 窗口菜单里的自动适配。</li>
+<li>安装完成后再启用 VMware guest tools。</li>
+<li>KDE Plasma live 环境若分辨率无法保持，NixOS Wiki 提到可能与 KScreen 服务有关；初学阶段可暂时忍受，安装后再配置。</li>
+</ul>
+<h3 id="62">6.2 图形安装建议</h3>
+<p>图形安装器中建议：</p>
+<div class="codehilite"><pre><span></span><code>语言：English 或中文均可；教程命令按英文界面描述
+键盘：English (US)，除非你明确需要中文键盘布局
+时区：Asia/Shanghai
+分区：Erase disk，自动分区，虚拟机里可以放心
+文件系统：ext4 起步最稳；Btrfs 可后续进阶
+用户：study
+主机名：nixos-vm
+桌面：GNOME 或 KDE Plasma；如果想省资源也可选无桌面/轻量桌面
+</code></pre></div>
+
+<p>新手建议：</p>
+<div class="codehilite"><pre><span></span><code>第一次：ext4 + GNOME/KDE + 自动分区
+第二次：minimal ISO 手动分区
+第三次：尝试 Btrfs、Flakes、Home Manager
+</code></pre></div>
+
+<h3 id="63">6.3 安装后第一件事：确认联网</h3>
+<p>打开终端：</p>
+<div class="codehilite"><pre><span></span><code>ping<span class="w"> </span>-c<span class="w"> </span><span class="m">4</span><span class="w"> </span>cache.nixos.org
+</code></pre></div>
+
+<p>如果没有 <code>ping</code> 或命令不同，可用：</p>
+<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-I<span class="w"> </span>https://cache.nixos.org
+</code></pre></div>
+
+<h3 id="64">6.4 更新配置后重建系统</h3>
+<p>NixOS 的核心命令：</p>
+<div class="codehilite"><pre><span></span><code>sudo<span class="w"> </span>nixos-rebuild<span class="w"> </span>switch
+</code></pre></div>
+
+<p>记忆：</p>
+<div class="codehilite"><pre><span></span><code>改配置文件 → nixos-rebuild switch → 新系统 generation 生效
+</code></pre></div>
+
+<hr />
+<h2 id="7-minimal-iso">7. 第二次安装：用 minimal ISO 手动装一遍</h2>
+<p>这一遍是专业化训练。它会让你真正理解 Linux 安装过程。</p>
+<h3 id="71-root-shell">7.1 进入 root shell</h3>
+<p>minimal ISO 启动后通常进入命令行环境。先确认网络：</p>
+<div class="codehilite"><pre><span></span><code>ping<span class="w"> </span>-c<span class="w"> </span><span class="m">4</span><span class="w"> </span>cache.nixos.org
+</code></pre></div>
+
+<p>如果 NAT 正常，通常 DHCP 会自动获得网络。</p>
+<h3 id="72">7.2 找磁盘名</h3>
+<p>非常重要：你必须以自己机器上的输出为准。</p>
+<div class="codehilite"><pre><span></span><code>lsblk
+</code></pre></div>
+
+<p>常见磁盘名：</p>
+<div class="codehilite"><pre><span></span><code>/dev/sda
+/dev/vda
+/dev/nvme0n1
+</code></pre></div>
+
+<p>VMware 中常见是 <code>/dev/sda</code> 或 <code>/dev/nvme0n1</code>。下面示例用 <code>/dev/sda</code>，你要按实际情况替换。</p>
+<blockquote>
+<p>警告：下面分区命令会清空目标磁盘。只在虚拟机练习盘上执行。</p>
+</blockquote>
+<h3 id="73-uefi-gpt-ext4">7.3 UEFI + GPT + ext4 分区方案</h3>
+<p>目标分区：</p>
+<div class="codehilite"><pre><span></span><code>/dev/sda1  512M   EFI System Partition  挂载到 /boot
+/dev/sda2  剩余   Linux root             挂载到 /
+</code></pre></div>
+
+<p>执行：</p>
+<div class="codehilite"><pre><span></span><code>sudo<span class="w"> </span>-i
+parted<span class="w"> </span>/dev/sda<span class="w"> </span>--<span class="w"> </span>mklabel<span class="w"> </span>gpt
+parted<span class="w"> </span>/dev/sda<span class="w"> </span>--<span class="w"> </span>mkpart<span class="w"> </span>ESP<span class="w"> </span>fat32<span class="w"> </span>1MiB<span class="w"> </span>512MiB
+parted<span class="w"> </span>/dev/sda<span class="w"> </span>--<span class="w"> </span><span class="nb">set</span><span class="w"> </span><span class="m">1</span><span class="w"> </span>esp<span class="w"> </span>on
+parted<span class="w"> </span>/dev/sda<span class="w"> </span>--<span class="w"> </span>mkpart<span class="w"> </span>primary<span class="w"> </span>ext4<span class="w"> </span>512MiB<span class="w"> </span><span class="m">100</span>%
+</code></pre></div>
+
+<p>格式化：</p>
+<div class="codehilite"><pre><span></span><code>mkfs.fat<span class="w"> </span>-F<span class="w"> </span><span class="m">32</span><span class="w"> </span>-n<span class="w"> </span>boot<span class="w"> </span>/dev/sda1
+mkfs.ext4<span class="w"> </span>-L<span class="w"> </span>nixos<span class="w"> </span>/dev/sda2
+</code></pre></div>
+
+<p>挂载：</p>
+<div class="codehilite"><pre><span></span><code>mount<span class="w"> </span>/dev/disk/by-label/nixos<span class="w"> </span>/mnt
+mkdir<span class="w"> </span>-p<span class="w"> </span>/mnt/boot
+mount<span class="w"> </span>/dev/disk/by-label/boot<span class="w"> </span>/mnt/boot
+</code></pre></div>
+
+<p>检查：</p>
+<div class="codehilite"><pre><span></span><code>lsblk<span class="w"> </span>-f
+</code></pre></div>
+
+<p>你应该看到类似：</p>
+<div class="codehilite"><pre><span></span><code>sda1  vfat  boot   mounted on /mnt/boot
+sda2  ext4  nixos  mounted on /mnt
+</code></pre></div>
+
+<h3 id="74-nixos">7.4 生成 NixOS 配置</h3>
+<div class="codehilite"><pre><span></span><code>nixos-generate-config<span class="w"> </span>--root<span class="w"> </span>/mnt
+</code></pre></div>
+
+<p>生成两个关键文件：</p>
+<div class="codehilite"><pre><span></span><code>/mnt/etc/nixos/configuration.nix
+/mnt/etc/nixos/hardware-configuration.nix
+</code></pre></div>
+
+<p>记住：</p>
+<ul>
+<li><code>configuration.nix</code>：人主要编辑的系统配置。</li>
+<li><code>hardware-configuration.nix</code>：安装器根据硬件生成，通常不要乱改。</li>
+</ul>
+<h3 id="75">7.5 编辑最小可用配置</h3>
+<p>打开：</p>
+<div class="codehilite"><pre><span></span><code>nano<span class="w"> </span>/mnt/etc/nixos/configuration.nix
+</code></pre></div>
+
+<p>建议起步配置如下，按需合并到生成的文件里：</p>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span> config<span class="p">,</span> pkgs<span class="p">,</span> <span class="o">...</span> <span class="p">}:</span>
+
+<span class="p">{</span>
+  <span class="ss">imports</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="l">./hardware-configuration.nix</span>
+  <span class="p">];</span>
+
+  boot<span class="o">.</span>loader<span class="o">.</span>systemd-boot<span class="o">.</span><span class="ss">enable</span> <span class="o">=</span> <span class="no">true</span><span class="p">;</span>
+  boot<span class="o">.</span>loader<span class="o">.</span>efi<span class="o">.</span><span class="ss">canTouchEfiVariables</span> <span class="o">=</span> <span class="no">true</span><span class="p">;</span>
+
+  networking<span class="o">.</span><span class="ss">hostName</span> <span class="o">=</span> <span class="s2">&quot;nixos-vm&quot;</span><span class="p">;</span>
+  networking<span class="o">.</span>networkmanager<span class="o">.</span><span class="ss">enable</span> <span class="o">=</span> <span class="no">true</span><span class="p">;</span>
+
+  time<span class="o">.</span><span class="ss">timeZone</span> <span class="o">=</span> <span class="s2">&quot;Asia/Shanghai&quot;</span><span class="p">;</span>
+  i18n<span class="o">.</span><span class="ss">defaultLocale</span> <span class="o">=</span> <span class="s2">&quot;zh_CN.UTF-8&quot;</span><span class="p">;</span>
+  console<span class="o">.</span><span class="ss">keyMap</span> <span class="o">=</span> <span class="s2">&quot;us&quot;</span><span class="p">;</span>
+
+  users<span class="o">.</span>users<span class="o">.</span><span class="ss">study</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="ss">isNormalUser</span> <span class="o">=</span> <span class="no">true</span><span class="p">;</span>
+    <span class="ss">description</span> <span class="o">=</span> <span class="s2">&quot;Study User&quot;</span><span class="p">;</span>
+    <span class="ss">extraGroups</span> <span class="o">=</span> <span class="p">[</span> <span class="s2">&quot;wheel&quot;</span> <span class="s2">&quot;networkmanager&quot;</span> <span class="p">];</span>
+    <span class="ss">initialPassword</span> <span class="o">=</span> <span class="s2">&quot;123456&quot;</span><span class="p">;</span>
+  <span class="p">};</span>
+
+  environment<span class="o">.</span><span class="ss">systemPackages</span> <span class="o">=</span> <span class="k">with</span> pkgs<span class="p">;</span> <span class="p">[</span>
+    vim
+    nano
+    git
+    wget
+    curl
+    htop
+    tree
+    fastfetch
+  <span class="p">];</span>
+
+  services<span class="o">.</span>openssh<span class="o">.</span><span class="ss">enable</span> <span class="o">=</span> <span class="no">true</span><span class="p">;</span>
+
+  <span class="c1"># VMware guest tools：安装后用于改善 VMware 集成体验。</span>
+  virtualisation<span class="o">.</span>vmware<span class="o">.</span>guest<span class="o">.</span><span class="ss">enable</span> <span class="o">=</span> <span class="no">true</span><span class="p">;</span>
+
+  <span class="c1"># 如果启用 X11 图形桌面，可使用 vmware 视频驱动。</span>
+  services<span class="o">.</span>xserver<span class="o">.</span><span class="ss">videoDrivers</span> <span class="o">=</span> <span class="p">[</span> <span class="s2">&quot;vmware&quot;</span> <span class="p">];</span>
+
+  <span class="c1"># 初学阶段不要随便改。它表示本机第一次安装时的 NixOS 状态版本。</span>
+  system<span class="o">.</span><span class="ss">stateVersion</span> <span class="o">=</span> <span class="s2">&quot;26.05&quot;</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>注意：</p>
+<ul>
+<li><code>initialPassword = "123456";</code> 只适合学习虚拟机。真实机器不要明文密码。</li>
+<li><code>system.stateVersion</code> 不是当前系统版本号，不要每次升级都随手改。它控制一些有状态数据的兼容默认值。</li>
+</ul>
+<h3 id="76">7.6 安装</h3>
+<div class="codehilite"><pre><span></span><code>nixos-install
+</code></pre></div>
+
+<p>安装完成后重启：</p>
+<div class="codehilite"><pre><span></span><code>reboot
+</code></pre></div>
+
+<p>如果没有自动移除 ISO，重启前或重启时在 VMware 中断开 CD/DVD ISO，避免再次进入安装介质。</p>
+<h3 id="77">7.7 登录后修改密码</h3>
+<p>登录 <code>study</code> 后：</p>
+<div class="codehilite"><pre><span></span><code>passwd
+</code></pre></div>
+
+<p>如果想给 root 设置密码：</p>
+<div class="codehilite"><pre><span></span><code>sudo<span class="w"> </span>passwd<span class="w"> </span>root
+</code></pre></div>
+
+<hr />
+<h2 id="8-vmware-guest-tools-nixos">8. VMware guest tools 与 NixOS 配置</h2>
+<p>NixOS Wiki 对 VMware guest 的关键配置是：</p>
+<div class="codehilite"><pre><span></span><code>virtualisation<span class="o">.</span>vmware<span class="o">.</span>guest<span class="o">.</span><span class="ss">enable</span> <span class="o">=</span> <span class="no">true</span><span class="p">;</span>
+</code></pre></div>
+
+<p>如果使用 X11 图形桌面，可以加：</p>
+<div class="codehilite"><pre><span></span><code>services<span class="o">.</span>xserver<span class="o">.</span><span class="ss">videoDrivers</span> <span class="o">=</span> <span class="p">[</span> <span class="s2">&quot;vmware&quot;</span> <span class="p">];</span>
+</code></pre></div>
+
+<p>然后：</p>
+<div class="codehilite"><pre><span></span><code>sudo<span class="w"> </span>nixos-rebuild<span class="w"> </span>switch
+</code></pre></div>
+
+<p>注意：</p>
+<blockquote>
+<p>VMware 的复制、粘贴、拖拽文件等集成功能在 Xorg 下支持更好；NixOS Wiki 提到文件复制、粘贴、拖拽在 Wayland 下不支持，只支持 Xorg。</p>
+</blockquote>
+<p>如果你用 GNOME，登录界面通常可以选择：</p>
+<div class="codehilite"><pre><span></span><code>GNOME on Xorg
+</code></pre></div>
+
+<p>如果你用 KDE Plasma，也可以优先选择 X11 session，而不是 Wayland session。</p>
+<hr />
+<h2 id="9-nixos-12">9. NixOS 日常工作流：最重要的 12 条命令</h2>
+<p>这些命令建议背下来。</p>
+<h3 id="91">9.1 改配置并应用</h3>
+<div class="codehilite"><pre><span></span><code>sudo<span class="w"> </span>nano<span class="w"> </span>/etc/nixos/configuration.nix
+sudo<span class="w"> </span>nixos-rebuild<span class="w"> </span>switch
+</code></pre></div>
+
+<h3 id="92">9.2 只测试不永久切换</h3>
+<div class="codehilite"><pre><span></span><code>sudo<span class="w"> </span>nixos-rebuild<span class="w"> </span><span class="nb">test</span>
+</code></pre></div>
+
+<p>适合测试服务、桌面配置。</p>
+<h3 id="93">9.3 构建但不切换</h3>
+<div class="codehilite"><pre><span></span><code>sudo<span class="w"> </span>nixos-rebuild<span class="w"> </span>build
+</code></pre></div>
+
+<p>适合检查配置能不能构建。</p>
+<h3 id="94">9.4 下次启动生效</h3>
+<div class="codehilite"><pre><span></span><code>sudo<span class="w"> </span>nixos-rebuild<span class="w"> </span>boot
+</code></pre></div>
+
+<p>适合内核、驱动等你不想当前 session 立即切换的改动。</p>
+<h3 id="95">9.5 回滚</h3>
+<div class="codehilite"><pre><span></span><code>sudo<span class="w"> </span>nixos-rebuild<span class="w"> </span>switch<span class="w"> </span>--rollback
+</code></pre></div>
+
+<h3 id="96-generation">9.6 查看系统 generation</h3>
+<div class="codehilite"><pre><span></span><code>sudo<span class="w"> </span>nix-env<span class="w"> </span>--list-generations<span class="w"> </span>--profile<span class="w"> </span>/nix/var/nix/profiles/system
+</code></pre></div>
+
+<h3 id="97">9.7 搜索包</h3>
+<div class="codehilite"><pre><span></span><code>nix<span class="w"> </span>search<span class="w"> </span>nixpkgs<span class="w"> </span>firefox
+</code></pre></div>
+
+<h3 id="98-shell">9.8 临时进入带某软件的 shell</h3>
+<div class="codehilite"><pre><span></span><code>nix<span class="w"> </span>shell<span class="w"> </span>nixpkgs#git
+</code></pre></div>
+
+<p>退出 shell 后，环境消失，但 store 中可能仍有缓存。</p>
+<h3 id="99">9.9 直接运行软件</h3>
+<div class="codehilite"><pre><span></span><code>nix<span class="w"> </span>run<span class="w"> </span>nixpkgs#hello
+</code></pre></div>
+
+<h3 id="910-profile">9.10 安装用户级软件到 profile</h3>
+<div class="codehilite"><pre><span></span><code>nix<span class="w"> </span>profile<span class="w"> </span>install<span class="w"> </span>nixpkgs#neovim
+</code></pre></div>
+
+<p>不过 NixOS 学习中更推荐把常用系统软件写进：</p>
+<div class="codehilite"><pre><span></span><code>environment<span class="o">.</span><span class="ss">systemPackages</span> <span class="o">=</span> <span class="k">with</span> pkgs<span class="p">;</span> <span class="p">[</span> neovim <span class="p">];</span>
+</code></pre></div>
+
+<h3 id="911">9.11 垃圾回收</h3>
+<div class="codehilite"><pre><span></span><code>sudo<span class="w"> </span>nix-collect-garbage<span class="w"> </span>-d
+</code></pre></div>
+
+<p><code>-d</code> 会删除旧 generation。新手执行前建议先确认系统稳定，或者先做 VMware 快照。</p>
+<h3 id="912">9.12 查看日志</h3>
+<div class="codehilite"><pre><span></span><code>journalctl<span class="w"> </span>-xe
+systemctl<span class="w"> </span>status<span class="w"> </span>sshd
+</code></pre></div>
+
+<hr />
+<h2 id="10-etcnixosconfigurationnix">10. <code>/etc/nixos/configuration.nix</code> 逐行理解</h2>
+<p>典型结构：</p>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span> config<span class="p">,</span> pkgs<span class="p">,</span> <span class="o">...</span> <span class="p">}:</span>
+
+<span class="p">{</span>
+  <span class="ss">imports</span> <span class="o">=</span> <span class="p">[</span> <span class="l">./hardware-configuration.nix</span> <span class="p">];</span>
+
+  networking<span class="o">.</span><span class="ss">hostName</span> <span class="o">=</span> <span class="s2">&quot;nixos-vm&quot;</span><span class="p">;</span>
+  environment<span class="o">.</span><span class="ss">systemPackages</span> <span class="o">=</span> <span class="k">with</span> pkgs<span class="p">;</span> <span class="p">[</span> git vim <span class="p">];</span>
+
+  system<span class="o">.</span><span class="ss">stateVersion</span> <span class="o">=</span> <span class="s2">&quot;26.05&quot;</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3 id="101">10.1 第一行是什么</h3>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span> config<span class="p">,</span> pkgs<span class="p">,</span> <span class="o">...</span> <span class="p">}:</span>
+</code></pre></div>
+
+<p>这是一个函数。NixOS 配置本质上是一个 Nix 函数，接收参数：</p>
+<ul>
+<li><code>config</code>：已经合并出来的配置。</li>
+<li><code>pkgs</code>：Nixpkgs 包集合。</li>
+<li><code>...</code>：允许还有其他参数。</li>
+</ul>
+<h3 id="102">10.2 <code>{ ... }</code> 是属性集</h3>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span>
+  networking<span class="o">.</span><span class="ss">hostName</span> <span class="o">=</span> <span class="s2">&quot;nixos-vm&quot;</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>可以理解为 key-value 字典。</p>
+<h3 id="103-imports">10.3 <code>imports</code> 是导入其他模块</h3>
+<div class="codehilite"><pre><span></span><code><span class="ss">imports</span> <span class="o">=</span> <span class="p">[</span> <span class="l">./hardware-configuration.nix</span> <span class="p">];</span>
+</code></pre></div>
+
+<p>以后你会把大配置拆成：</p>
+<div class="codehilite"><pre><span></span><code>/etc/nixos/
+  configuration.nix
+  hardware-configuration.nix
+  modules/
+    desktop.nix
+    packages.nix
+    users.nix
+    services.nix
+</code></pre></div>
+
+<h3 id="104-with-pkgs">10.4 <code>with pkgs; [ ... ]</code> 是包列表简写</h3>
+<div class="codehilite"><pre><span></span><code>environment<span class="o">.</span><span class="ss">systemPackages</span> <span class="o">=</span> <span class="k">with</span> pkgs<span class="p">;</span> <span class="p">[</span>
+  git
+  vim
+  htop
+<span class="p">];</span>
+</code></pre></div>
+
+<p>等价于：</p>
+<div class="codehilite"><pre><span></span><code>environment<span class="o">.</span><span class="ss">systemPackages</span> <span class="o">=</span> <span class="p">[</span>
+  pkgs<span class="o">.</span>git
+  pkgs<span class="o">.</span>vim
+  pkgs<span class="o">.</span>htop
+<span class="p">];</span>
+</code></pre></div>
+
+<h3 id="105-systemstateversion">10.5 <code>system.stateVersion</code> 不要乱改</h3>
+<div class="codehilite"><pre><span></span><code>system<span class="o">.</span><span class="ss">stateVersion</span> <span class="o">=</span> <span class="s2">&quot;26.05&quot;</span><span class="p">;</span>
+</code></pre></div>
+
+<p>它表示你的系统第一次安装时采用的有状态默认值版本。升级系统时通常不改它。</p>
+<p>记忆：</p>
+<blockquote>
+<p><code>system.stateVersion</code> 不是“我要升级到哪个版本”，而是“我的状态数据按哪个历史默认值保持兼容”。</p>
+</blockquote>
+<hr />
+<h2 id="11">11. 常用配置模板：先会抄，再理解</h2>
+<h3 id="111">11.1 添加常用命令行软件</h3>
+<div class="codehilite"><pre><span></span><code>environment<span class="o">.</span><span class="ss">systemPackages</span> <span class="o">=</span> <span class="k">with</span> pkgs<span class="p">;</span> <span class="p">[</span>
+  git
+  vim
+  nano
+  wget
+  curl
+  htop
+  btop
+  tree
+  ripgrep
+  fd
+  jq
+  unzip
+  zip
+  fastfetch
+<span class="p">];</span>
+</code></pre></div>
+
+<p>应用：</p>
+<div class="codehilite"><pre><span></span><code>sudo<span class="w"> </span>nixos-rebuild<span class="w"> </span>switch
+</code></pre></div>
+
+<h3 id="112-ssh">11.2 开启 SSH</h3>
+<div class="codehilite"><pre><span></span><code>services<span class="o">.</span><span class="ss">openssh</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="ss">enable</span> <span class="o">=</span> <span class="no">true</span><span class="p">;</span>
+  <span class="ss">settings</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="ss">PasswordAuthentication</span> <span class="o">=</span> <span class="no">true</span><span class="p">;</span>
+    <span class="ss">PermitRootLogin</span> <span class="o">=</span> <span class="s2">&quot;no&quot;</span><span class="p">;</span>
+  <span class="p">};</span>
+<span class="p">};</span>
+</code></pre></div>
+
+<p>查 IP：</p>
+<div class="codehilite"><pre><span></span><code>ip<span class="w"> </span>addr
+</code></pre></div>
+
+<p>Win11 PowerShell 连接：</p>
+<div class="codehilite"><pre><span></span><code><span class="n">ssh</span> <span class="n">study</span><span class="nv">@虚拟机IP</span>
+</code></pre></div>
+
+<h3 id="113-networkmanager">11.3 启用 NetworkManager</h3>
+<div class="codehilite"><pre><span></span><code>networking<span class="o">.</span>networkmanager<span class="o">.</span><span class="ss">enable</span> <span class="o">=</span> <span class="no">true</span><span class="p">;</span>
+users<span class="o">.</span>users<span class="o">.</span>study<span class="o">.</span><span class="ss">extraGroups</span> <span class="o">=</span> <span class="p">[</span> <span class="s2">&quot;wheel&quot;</span> <span class="s2">&quot;networkmanager&quot;</span> <span class="p">];</span>
+</code></pre></div>
+
+<h3 id="114">11.4 设置主机名和时区</h3>
+<div class="codehilite"><pre><span></span><code>networking<span class="o">.</span><span class="ss">hostName</span> <span class="o">=</span> <span class="s2">&quot;nixos-vm&quot;</span><span class="p">;</span>
+time<span class="o">.</span><span class="ss">timeZone</span> <span class="o">=</span> <span class="s2">&quot;Asia/Shanghai&quot;</span><span class="p">;</span>
+</code></pre></div>
+
+<h3 id="115-gnome">11.5 启用 GNOME 桌面</h3>
+<p>NixOS 26.05 推荐使用较新的 display manager / desktop manager 选项路径：</p>
+<div class="codehilite"><pre><span></span><code>services<span class="o">.</span>xserver<span class="o">.</span><span class="ss">enable</span> <span class="o">=</span> <span class="no">true</span><span class="p">;</span>
+services<span class="o">.</span>displayManager<span class="o">.</span>gdm<span class="o">.</span><span class="ss">enable</span> <span class="o">=</span> <span class="no">true</span><span class="p">;</span>
+services<span class="o">.</span>desktopManager<span class="o">.</span>gnome<span class="o">.</span><span class="ss">enable</span> <span class="o">=</span> <span class="no">true</span><span class="p">;</span>
+</code></pre></div>
+
+<p>如果你在旧教程里看到 <code>services.xserver.displayManager.gdm.enable</code> 或 <code>services.xserver.desktopManager.gnome.enable</code>，它们可能是旧路径；遇到 renamed/deprecated 提示时，按构建错误和 <code>https://search.nixos.org/options</code> 的 26.05 结果修正。</p>
+<h3 id="116-kde-plasma-6">11.6 启用 KDE Plasma 6 桌面</h3>
+<p>常见配置形态：</p>
+<div class="codehilite"><pre><span></span><code>services<span class="o">.</span>xserver<span class="o">.</span><span class="ss">enable</span> <span class="o">=</span> <span class="no">true</span><span class="p">;</span>
+services<span class="o">.</span>displayManager<span class="o">.</span>sddm<span class="o">.</span><span class="ss">enable</span> <span class="o">=</span> <span class="no">true</span><span class="p">;</span>
+services<span class="o">.</span>desktopManager<span class="o">.</span>plasma6<span class="o">.</span><span class="ss">enable</span> <span class="o">=</span> <span class="no">true</span><span class="p">;</span>
+</code></pre></div>
+
+<p>不同版本的 option 路径可能略有变化，遇到报错以 NixOS options search 和构建错误为准。</p>
+<h3 id="117-fish-shell">11.7 启用 Fish shell</h3>
+<div class="codehilite"><pre><span></span><code>programs<span class="o">.</span>fish<span class="o">.</span><span class="ss">enable</span> <span class="o">=</span> <span class="no">true</span><span class="p">;</span>
+users<span class="o">.</span>users<span class="o">.</span>study<span class="o">.</span><span class="ss">shell</span> <span class="o">=</span> pkgs<span class="o">.</span>fish<span class="p">;</span>
+</code></pre></div>
+
+<h3 id="118-zsh">11.8 启用 Zsh</h3>
+<div class="codehilite"><pre><span></span><code>programs<span class="o">.</span>zsh<span class="o">.</span><span class="ss">enable</span> <span class="o">=</span> <span class="no">true</span><span class="p">;</span>
+users<span class="o">.</span>users<span class="o">.</span>study<span class="o">.</span><span class="ss">shell</span> <span class="o">=</span> pkgs<span class="o">.</span>zsh<span class="p">;</span>
+</code></pre></div>
+
+<h3 id="119">11.9 中文字体</h3>
+<div class="codehilite"><pre><span></span><code>fonts<span class="o">.</span><span class="ss">packages</span> <span class="o">=</span> <span class="k">with</span> pkgs<span class="p">;</span> <span class="p">[</span>
+  noto-fonts
+  noto-fonts-cjk-sans
+  noto-fonts-cjk-serif
+  noto-fonts-emoji
+<span class="p">];</span>
+</code></pre></div>
+
+<h3 id="1110">11.10 输入法示例</h3>
+<p>NixOS 输入法配置和桌面环境、Wayland/X11 有关，建议先理解后配置。常见方向是 Fcitx5：</p>
+<div class="codehilite"><pre><span></span><code>i18n<span class="o">.</span><span class="ss">inputMethod</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="ss">enable</span> <span class="o">=</span> <span class="no">true</span><span class="p">;</span>
+  <span class="ss">type</span> <span class="o">=</span> <span class="s2">&quot;fcitx5&quot;</span><span class="p">;</span>
+  fcitx5<span class="o">.</span><span class="ss">addons</span> <span class="o">=</span> <span class="k">with</span> pkgs<span class="p">;</span> <span class="p">[</span>
+    fcitx5-chinese-addons
+    fcitx5-pinyin-zhwiki
+  <span class="p">];</span>
+<span class="p">};</span>
+</code></pre></div>
+
+<p>如果构建提示选项变化，以 26.05 options search 为准。</p>
+<hr />
+<h2 id="12-nix">12. Nix 语言最小核心：能看懂配置就够起步</h2>
+<p>Nix 语言是纯函数式、惰性求值、动态类型的领域专用语言。听起来很吓人，但你一开始只需要掌握 8 个结构。</p>
+<h3 id="121">12.1 字符串</h3>
+<div class="codehilite"><pre><span></span><code><span class="s2">&quot;hello&quot;</span>
+<span class="s2">&quot;/home/study&quot;</span>
+</code></pre></div>
+
+<p>插值：</p>
+<div class="codehilite"><pre><span></span><code><span class="k">let</span> <span class="ss">name</span> <span class="o">=</span> <span class="s2">&quot;NixOS&quot;</span><span class="p">;</span> <span class="k">in</span> <span class="s2">&quot;hello </span><span class="si">${</span>name<span class="si">}</span><span class="s2">&quot;</span>
+</code></pre></div>
+
+<h3 id="122">12.2 数字和布尔</h3>
+<div class="codehilite"><pre><span></span><code><span class="mi">1</span>
+<span class="mf">3.14</span>
+<span class="no">true</span>
+<span class="no">false</span>
+</code></pre></div>
+
+<h3 id="123">12.3 列表</h3>
+<div class="codehilite"><pre><span></span><code><span class="p">[</span> <span class="s2">&quot;git&quot;</span> <span class="s2">&quot;vim&quot;</span> <span class="s2">&quot;curl&quot;</span> <span class="p">]</span>
+</code></pre></div>
+
+<p>注意：列表元素用空格分隔，不用逗号。</p>
+<h3 id="124">12.4 属性集</h3>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span>
+  <span class="ss">name</span> <span class="o">=</span> <span class="s2">&quot;study&quot;</span><span class="p">;</span>
+  <span class="ss">age</span> <span class="o">=</span> <span class="mi">18</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>取值：</p>
+<div class="codehilite"><pre><span></span><code>user<span class="o">.</span>name
+</code></pre></div>
+
+<h3 id="125-let-in">12.5 <code>let ... in ...</code></h3>
+<div class="codehilite"><pre><span></span><code><span class="k">let</span>
+  <span class="ss">a</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+  <span class="ss">b</span> <span class="o">=</span> <span class="mi">2</span><span class="p">;</span>
+<span class="k">in</span>
+  a <span class="o">+</span> b
+</code></pre></div>
+
+<p>意思：先定义局部变量，再返回表达式。</p>
+<h3 id="126">12.6 函数</h3>
+<div class="codehilite"><pre><span></span><code>x<span class="p">:</span> x <span class="o">+</span> <span class="mi">1</span>
+</code></pre></div>
+
+<p>调用：</p>
+<div class="codehilite"><pre><span></span><code><span class="k">let</span>
+  <span class="ss">add1</span> <span class="o">=</span> x<span class="p">:</span> x <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
+<span class="k">in</span>
+  add1 <span class="mi">2</span>
+</code></pre></div>
+
+<p>结果是 3。</p>
+<h3 id="127">12.7 参数集函数</h3>
+<p>NixOS 配置开头：</p>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span> config<span class="p">,</span> pkgs<span class="p">,</span> <span class="o">...</span> <span class="p">}:</span>
+<span class="p">{</span>
+  environment<span class="o">.</span><span class="ss">systemPackages</span> <span class="o">=</span> <span class="k">with</span> pkgs<span class="p">;</span> <span class="p">[</span> git <span class="p">];</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>这就是一个接收属性集的函数。</p>
+<h3 id="128-inherit">12.8 <code>inherit</code></h3>
+<div class="codehilite"><pre><span></span><code><span class="k">let</span>
+  <span class="ss">name</span> <span class="o">=</span> <span class="s2">&quot;hello&quot;</span><span class="p">;</span>
+  <span class="ss">version</span> <span class="o">=</span> <span class="s2">&quot;1.0&quot;</span><span class="p">;</span>
+<span class="k">in</span>
+<span class="p">{</span>
+  <span class="k">inherit</span> name version<span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>等价于：</p>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span>
+  <span class="ss">name</span> <span class="o">=</span> name<span class="p">;</span>
+  <span class="ss">version</span> <span class="o">=</span> version<span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3 id="129-with">12.9 <code>with</code></h3>
+<div class="codehilite"><pre><span></span><code><span class="k">with</span> pkgs<span class="p">;</span> <span class="p">[</span> git vim curl <span class="p">]</span>
+</code></pre></div>
+
+<p>等价于：</p>
+<div class="codehilite"><pre><span></span><code><span class="p">[</span> pkgs<span class="o">.</span>git pkgs<span class="o">.</span>vim pkgs<span class="o">.</span>curl <span class="p">]</span>
+</code></pre></div>
+
+<h3 id="1210-import">12.10 <code>import</code></h3>
+<div class="codehilite"><pre><span></span><code><span class="nb">import</span> <span class="l">./packages.nix</span>
+</code></pre></div>
+
+<p>意思是读取并求值另一个 Nix 文件。</p>
+<hr />
+<h2 id="13-nixos">13. NixOS 模块系统：从“配置文件”升级到“配置程序”</h2>
+<p>你写的：</p>
+<div class="codehilite"><pre><span></span><code>services<span class="o">.</span>openssh<span class="o">.</span><span class="ss">enable</span> <span class="o">=</span> <span class="no">true</span><span class="p">;</span>
+</code></pre></div>
+
+<p>背后发生的是：</p>
+<div class="codehilite"><pre><span></span><code>NixOS 模块系统收集所有模块
+        ↓
+检查 option 类型和默认值
+        ↓
+合并配置
+        ↓
+生成 systemd unit、/etc 文件、启动脚本、包闭包
+        ↓
+构建一个新的系统 generation
+</code></pre></div>
+
+<h3 id="131">13.1 模块拆分示例</h3>
+<p>目录：</p>
+<div class="codehilite"><pre><span></span><code>/etc/nixos/
+  configuration.nix
+  hardware-configuration.nix
+  modules/
+    packages.nix
+    users.nix
+    vmware.nix
+</code></pre></div>
+
+<p><code>configuration.nix</code>：</p>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span> config<span class="p">,</span> pkgs<span class="p">,</span> <span class="o">...</span> <span class="p">}:</span>
+
+<span class="p">{</span>
+  <span class="ss">imports</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="l">./hardware-configuration.nix</span>
+    <span class="l">./modules/packages.nix</span>
+    <span class="l">./modules/users.nix</span>
+    <span class="l">./modules/vmware.nix</span>
+  <span class="p">];</span>
+
+  networking<span class="o">.</span><span class="ss">hostName</span> <span class="o">=</span> <span class="s2">&quot;nixos-vm&quot;</span><span class="p">;</span>
+  time<span class="o">.</span><span class="ss">timeZone</span> <span class="o">=</span> <span class="s2">&quot;Asia/Shanghai&quot;</span><span class="p">;</span>
+  system<span class="o">.</span><span class="ss">stateVersion</span> <span class="o">=</span> <span class="s2">&quot;26.05&quot;</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p><code>modules/packages.nix</code>：</p>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span> pkgs<span class="p">,</span> <span class="o">...</span> <span class="p">}:</span>
+
+<span class="p">{</span>
+  environment<span class="o">.</span><span class="ss">systemPackages</span> <span class="o">=</span> <span class="k">with</span> pkgs<span class="p">;</span> <span class="p">[</span>
+    git
+    vim
+    curl
+    htop
+    tree
+  <span class="p">];</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p><code>modules/users.nix</code>：</p>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span> pkgs<span class="p">,</span> <span class="o">...</span> <span class="p">}:</span>
+
+<span class="p">{</span>
+  users<span class="o">.</span>users<span class="o">.</span><span class="ss">study</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="ss">isNormalUser</span> <span class="o">=</span> <span class="no">true</span><span class="p">;</span>
+    <span class="ss">extraGroups</span> <span class="o">=</span> <span class="p">[</span> <span class="s2">&quot;wheel&quot;</span> <span class="s2">&quot;networkmanager&quot;</span> <span class="p">];</span>
+    <span class="ss">shell</span> <span class="o">=</span> pkgs<span class="o">.</span>bashInteractive<span class="p">;</span>
+  <span class="p">};</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p><code>modules/vmware.nix</code>：</p>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span> <span class="o">...</span> <span class="p">}:</span>
+
+<span class="p">{</span>
+  virtualisation<span class="o">.</span>vmware<span class="o">.</span>guest<span class="o">.</span><span class="ss">enable</span> <span class="o">=</span> <span class="no">true</span><span class="p">;</span>
+  services<span class="o">.</span>xserver<span class="o">.</span><span class="ss">videoDrivers</span> <span class="o">=</span> <span class="p">[</span> <span class="s2">&quot;vmware&quot;</span> <span class="p">];</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3 id="132">13.2 为什么拆分</h3>
+<p>不拆分时：</p>
+<div class="codehilite"><pre><span></span><code>configuration.nix 越来越长，最后不敢改。
+</code></pre></div>
+
+<p>拆分后：</p>
+<div class="codehilite"><pre><span></span><code>包在 packages.nix
+用户在 users.nix
+桌面在 desktop.nix
+服务在 services.nix
+虚拟化在 vmware.nix
+</code></pre></div>
+
+<p>这是专业 NixOS 配置管理的第一步。</p>
+<hr />
+<h2 id="14-flakes">14. Flakes：让系统配置可复现、可迁移</h2>
+<h3 id="141-flakes">14.1 Flakes 解决什么问题</h3>
+<p>传统 channel 方式：</p>
+<div class="codehilite"><pre><span></span><code>你的 nixpkgs 版本依赖系统 channel 当前指向哪里
+</code></pre></div>
+
+<p>Flakes 方式：</p>
+<div class="codehilite"><pre><span></span><code>flake.nix 声明输入
+flake.lock 锁住输入版本
+</code></pre></div>
+
+<p>记忆：</p>
+<blockquote>
+<p><code>flake.nix</code> 是菜单，<code>flake.lock</code> 是采购批次号。</p>
+</blockquote>
+<h3 id="142-flakes">14.2 启用 Flakes</h3>
+<p>在 <code>configuration.nix</code> 中：</p>
+<div class="codehilite"><pre><span></span><code>nix<span class="o">.</span>settings<span class="o">.</span><span class="ss">experimental-features</span> <span class="o">=</span> <span class="p">[</span> <span class="s2">&quot;nix-command&quot;</span> <span class="s2">&quot;flakes&quot;</span> <span class="p">];</span>
+</code></pre></div>
+
+<p>然后：</p>
+<div class="codehilite"><pre><span></span><code>sudo<span class="w"> </span>nixos-rebuild<span class="w"> </span>switch
+</code></pre></div>
+
+<h3 id="143-flakenix">14.3 最小 <code>flake.nix</code></h3>
+<p>建议把配置迁到：</p>
+<div class="codehilite"><pre><span></span><code>/etc/nixos/flake.nix
+/etc/nixos/configuration.nix
+/etc/nixos/hardware-configuration.nix
+</code></pre></div>
+
+<p>示例：</p>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span>
+  <span class="ss">description</span> <span class="o">=</span> <span class="s2">&quot;My NixOS VMware lab&quot;</span><span class="p">;</span>
+
+  <span class="ss">inputs</span> <span class="o">=</span> <span class="p">{</span>
+    nixpkgs<span class="o">.</span><span class="ss">url</span> <span class="o">=</span> <span class="s2">&quot;github:NixOS/nixpkgs/nixos-26.05&quot;</span><span class="p">;</span>
+  <span class="p">};</span>
+
+  <span class="ss">outputs</span> <span class="o">=</span> <span class="p">{</span> self<span class="p">,</span> nixpkgs<span class="p">,</span> <span class="o">...</span> <span class="p">}:</span>
+  <span class="p">{</span>
+    nixosConfigurations<span class="o">.</span><span class="ss">nixos-vm</span> <span class="o">=</span> nixpkgs<span class="o">.</span>lib<span class="o">.</span>nixosSystem <span class="p">{</span>
+      <span class="ss">system</span> <span class="o">=</span> <span class="s2">&quot;x86_64-linux&quot;</span><span class="p">;</span>
+      <span class="ss">modules</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="l">./configuration.nix</span>
+      <span class="p">];</span>
+    <span class="p">};</span>
+  <span class="p">};</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>使用：</p>
+<div class="codehilite"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>/etc/nixos
+sudo<span class="w"> </span>nixos-rebuild<span class="w"> </span>switch<span class="w"> </span>--flake<span class="w"> </span>.#nixos-vm
+</code></pre></div>
+
+<h3 id="144-flake">14.4 更新 Flake 输入</h3>
+<div class="codehilite"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>/etc/nixos
+sudo<span class="w"> </span>nix<span class="w"> </span>flake<span class="w"> </span>update
+sudo<span class="w"> </span>nixos-rebuild<span class="w"> </span>switch<span class="w"> </span>--flake<span class="w"> </span>.#nixos-vm
+</code></pre></div>
+
+<p>更谨慎的做法：</p>
+<div class="codehilite"><pre><span></span><code>sudo<span class="w"> </span>nix<span class="w"> </span>flake<span class="w"> </span>update
+sudo<span class="w"> </span>nixos-rebuild<span class="w"> </span>build<span class="w"> </span>--flake<span class="w"> </span>.#nixos-vm
+sudo<span class="w"> </span>nixos-rebuild<span class="w"> </span><span class="nb">test</span><span class="w"> </span>--flake<span class="w"> </span>.#nixos-vm
+sudo<span class="w"> </span>nixos-rebuild<span class="w"> </span>switch<span class="w"> </span>--flake<span class="w"> </span>.#nixos-vm
+</code></pre></div>
+
+<h3 id="145-git">14.5 Git 管理配置</h3>
+<div class="codehilite"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>/etc/nixos
+sudo<span class="w"> </span>git<span class="w"> </span>init
+sudo<span class="w"> </span>git<span class="w"> </span>add<span class="w"> </span>.
+sudo<span class="w"> </span>git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;initial nixos configuration&quot;</span>
+</code></pre></div>
+
+<p>如果不想一直用 sudo 管理 <code>/etc/nixos</code>，可以把配置放到家目录，例如：</p>
+<div class="codehilite"><pre><span></span><code>/home/study/nixos-config
+</code></pre></div>
+
+<p>然后：</p>
+<div class="codehilite"><pre><span></span><code>sudo<span class="w"> </span>nixos-rebuild<span class="w"> </span>switch<span class="w"> </span>--flake<span class="w"> </span>/home/study/nixos-config#nixos-vm
+</code></pre></div>
+
+<hr />
+<h2 id="15-home-manager">15. Home Manager：管理用户环境</h2>
+<p>NixOS 管系统层，Home Manager 管用户层。</p>
+<h3 id="151-home-manager">15.1 适合放 Home Manager 的内容</h3>
+<div class="codehilite"><pre><span></span><code>git 用户名、邮箱
+shell 配置
+neovim 配置
+starship prompt
+用户级 packages
+dotfiles
+</code></pre></div>
+
+<h3 id="152-home-manager">15.2 不适合放 Home Manager 的内容</h3>
+<div class="codehilite"><pre><span></span><code>内核
+bootloader
+系统服务
+系统用户
+磁盘挂载
+全局网络
+</code></pre></div>
+
+<h3 id="153">15.3 记忆原则</h3>
+<div class="codehilite"><pre><span></span><code>机器级别：NixOS
+用户级别：Home Manager
+项目级别：devShell / flake
+</code></pre></div>
+
+<hr />
+<h2 id="16-nixos">16. 开发环境：NixOS 最强的日常能力之一</h2>
+<h3 id="161">16.1 临时环境</h3>
+<div class="codehilite"><pre><span></span><code>nix<span class="w"> </span>shell<span class="w"> </span>nixpkgs#python3<span class="w"> </span>nixpkgs#nodejs
+</code></pre></div>
+
+<h3 id="162-devshell">16.2 项目级 devShell</h3>
+<p><code>flake.nix</code>：</p>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span>
+  <span class="ss">description</span> <span class="o">=</span> <span class="s2">&quot;Example development shell&quot;</span><span class="p">;</span>
+
+  inputs<span class="o">.</span>nixpkgs<span class="o">.</span><span class="ss">url</span> <span class="o">=</span> <span class="s2">&quot;github:NixOS/nixpkgs/nixos-26.05&quot;</span><span class="p">;</span>
+
+  <span class="ss">outputs</span> <span class="o">=</span> <span class="p">{</span> self<span class="p">,</span> nixpkgs <span class="p">}:</span>
+  <span class="k">let</span>
+    <span class="ss">system</span> <span class="o">=</span> <span class="s2">&quot;x86_64-linux&quot;</span><span class="p">;</span>
+    <span class="ss">pkgs</span> <span class="o">=</span> <span class="nb">import</span> nixpkgs <span class="p">{</span> <span class="k">inherit</span> system<span class="p">;</span> <span class="p">};</span>
+  <span class="k">in</span>
+  <span class="p">{</span>
+    devShells<span class="o">.</span><span class="si">${</span>system<span class="si">}</span><span class="o">.</span><span class="ss">default</span> <span class="o">=</span> pkgs<span class="o">.</span>mkShell <span class="p">{</span>
+      <span class="ss">packages</span> <span class="o">=</span> <span class="k">with</span> pkgs<span class="p">;</span> <span class="p">[</span>
+        git
+        python3
+        nodejs
+      <span class="p">];</span>
+
+      <span class="ss">shellHook</span> <span class="o">=</span> <span class="s s-Multiline">&#39;&#39;</span>
+<span class="s s-Multiline">        echo &quot;Welcome to this dev shell&quot;</span>
+<span class="s s-Multiline">      &#39;&#39;</span><span class="p">;</span>
+    <span class="p">};</span>
+  <span class="p">};</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>进入：</p>
+<div class="codehilite"><pre><span></span><code>nix<span class="w"> </span>develop
+</code></pre></div>
+
+<p>退出：</p>
+<div class="codehilite"><pre><span></span><code><span class="nb">exit</span>
+</code></pre></div>
+
+<h3 id="163">16.3 为什么这很强</h3>
+<p>传统开发环境：</p>
+<div class="codehilite"><pre><span></span><code>README 写：请安装 Python 3.11、Node 22、某某库……
+每个人装出来都可能不一样。
+</code></pre></div>
+
+<p>Nix 开发环境：</p>
+<div class="codehilite"><pre><span></span><code>flake.nix 写清楚依赖
+flake.lock 锁定版本
+nix develop 一键进入
+</code></pre></div>
+
+<hr />
+<h2 id="17-nixpkgs">17. 打包入门：理解 Nixpkgs 的门槛</h2>
+<p>最小打包示例：</p>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span> stdenv<span class="p">,</span> fetchurl <span class="p">}:</span>
+
+stdenv<span class="o">.</span>mkDerivation <span class="k">rec</span> <span class="p">{</span>
+  <span class="ss">pname</span> <span class="o">=</span> <span class="s2">&quot;hello&quot;</span><span class="p">;</span>
+  <span class="ss">version</span> <span class="o">=</span> <span class="s2">&quot;2.12&quot;</span><span class="p">;</span>
+
+  <span class="ss">src</span> <span class="o">=</span> fetchurl <span class="p">{</span>
+    <span class="ss">url</span> <span class="o">=</span> <span class="s2">&quot;mirror://gnu/hello/hello-</span><span class="si">${</span>version<span class="si">}</span><span class="s2">.tar.gz&quot;</span><span class="p">;</span>
+    <span class="ss">hash</span> <span class="o">=</span> <span class="s2">&quot;sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=&quot;</span><span class="p">;</span>
+  <span class="p">};</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>你现在不必立刻会写复杂包，但要理解：</p>
+<div class="codehilite"><pre><span></span><code>包 = 一个函数
+输入 = 依赖、源码、参数
+输出 = /nix/store/hash-name
+</code></pre></div>
+
+<h3 id="171-override">17.1 override</h3>
+<p>override 用于改函数参数：</p>
+<div class="codehilite"><pre><span></span><code>pkgs<span class="o">.</span>foo<span class="o">.</span>override <span class="p">{</span> <span class="ss">barSupport</span> <span class="o">=</span> <span class="no">true</span><span class="p">;</span> <span class="p">}</span>
+</code></pre></div>
+
+<h3 id="172-overrideattrs">17.2 overrideAttrs</h3>
+<p>overrideAttrs 用于改 derivation 属性：</p>
+<div class="codehilite"><pre><span></span><code>pkgs<span class="o">.</span>foo<span class="o">.</span>overrideAttrs <span class="p">(</span>old<span class="p">:</span> <span class="p">{</span>
+  <span class="ss">version</span> <span class="o">=</span> <span class="s2">&quot;new-version&quot;</span><span class="p">;</span>
+<span class="p">})</span>
+</code></pre></div>
+
+<h3 id="173-overlay">17.3 overlay</h3>
+<p>overlay 用于给整个包集合叠一层修改：</p>
+<div class="codehilite"><pre><span></span><code><span class="p">(</span>final<span class="p">:</span> prev<span class="p">:</span> <span class="p">{</span>
+  <span class="ss">myPackage</span> <span class="o">=</span> prev<span class="o">.</span>callPackage <span class="l">./my-package.nix</span> <span class="p">{</span> <span class="p">};</span>
+<span class="p">})</span>
+</code></pre></div>
+
+<p>记忆：</p>
+<div class="codehilite"><pre><span></span><code>override：改一个包的参数
+overrideAttrs：改一个包的构建属性
+overlay：改整个包集合
+</code></pre></div>
+
+<hr />
+<h2 id="18-nixos-systemd">18. 服务管理：NixOS 与 systemd</h2>
+<p>NixOS 大量服务最终都会生成 systemd unit。</p>
+<p>常用命令：</p>
+<div class="codehilite"><pre><span></span><code>systemctl<span class="w"> </span>status<span class="w"> </span>sshd
+sudo<span class="w"> </span>systemctl<span class="w"> </span>restart<span class="w"> </span>sshd
+journalctl<span class="w"> </span>-u<span class="w"> </span>sshd<span class="w"> </span>-e
+journalctl<span class="w"> </span>-xe
+</code></pre></div>
+
+<h3 id="181-nixos">18.1 NixOS 开服务的方式</h3>
+<div class="codehilite"><pre><span></span><code>services<span class="o">.</span>openssh<span class="o">.</span><span class="ss">enable</span> <span class="o">=</span> <span class="no">true</span><span class="p">;</span>
+</code></pre></div>
+
+<p>然后：</p>
+<div class="codehilite"><pre><span></span><code>sudo<span class="w"> </span>nixos-rebuild<span class="w"> </span>switch
+</code></pre></div>
+
+<h3 id="182-enable">18.2 不推荐新手手动 enable 系统服务</h3>
+<p>传统 Linux：</p>
+<div class="codehilite"><pre><span></span><code>sudo<span class="w"> </span>systemctl<span class="w"> </span><span class="nb">enable</span><span class="w"> </span>nginx
+sudo<span class="w"> </span>systemctl<span class="w"> </span>start<span class="w"> </span>nginx
+</code></pre></div>
+
+<p>NixOS 中更推荐：</p>
+<div class="codehilite"><pre><span></span><code>services<span class="o">.</span>nginx<span class="o">.</span><span class="ss">enable</span> <span class="o">=</span> <span class="no">true</span><span class="p">;</span>
+</code></pre></div>
+
+<p>再：</p>
+<div class="codehilite"><pre><span></span><code>sudo<span class="w"> </span>nixos-rebuild<span class="w"> </span>switch
+</code></pre></div>
+
+<p>因为手动 <code>systemctl enable</code> 可能和声明式配置不一致。</p>
+<hr />
+<h2 id="19-nixstore">19. 垃圾回收、磁盘空间与 <code>/nix/store</code></h2>
+<p>NixOS 会保留旧 generation，方便回滚，但也会占用磁盘。</p>
+<p>查看磁盘：</p>
+<div class="codehilite"><pre><span></span><code>df<span class="w"> </span>-h
+sudo<span class="w"> </span>du<span class="w"> </span>-sh<span class="w"> </span>/nix/store
+</code></pre></div>
+
+<p>删除旧 generation 和未引用 store path：</p>
+<div class="codehilite"><pre><span></span><code>sudo<span class="w"> </span>nix-collect-garbage<span class="w"> </span>-d
+</code></pre></div>
+
+<p>更温和：</p>
+<div class="codehilite"><pre><span></span><code>nix-collect-garbage
+</code></pre></div>
+
+<p>NixOS 配置自动 GC 示例：</p>
+<div class="codehilite"><pre><span></span><code>nix<span class="o">.</span><span class="ss">gc</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="ss">automatic</span> <span class="o">=</span> <span class="no">true</span><span class="p">;</span>
+  <span class="ss">dates</span> <span class="o">=</span> <span class="s2">&quot;weekly&quot;</span><span class="p">;</span>
+  <span class="ss">options</span> <span class="o">=</span> <span class="s2">&quot;--delete-older-than 14d&quot;</span><span class="p">;</span>
+<span class="p">};</span>
+</code></pre></div>
+
+<p>注意：</p>
+<blockquote>
+<p>删除旧 generation 后，能回滚的历史会减少。新手建议先做 VMware 快照，再清理。</p>
+</blockquote>
+<hr />
+<h2 id="20">20. 升级策略</h2>
+<h3 id="201-channel">20.1 channel 方式升级概念</h3>
+<p>如果你不用 Flakes，传统方式会用 channel 管理 nixpkgs 来源。新手可以知道概念，但我建议你尽早学 Flakes。</p>
+<h3 id="202-flakes">20.2 Flakes 升级</h3>
+<div class="codehilite"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>/etc/nixos
+sudo<span class="w"> </span>nix<span class="w"> </span>flake<span class="w"> </span>update
+sudo<span class="w"> </span>nixos-rebuild<span class="w"> </span>build<span class="w"> </span>--flake<span class="w"> </span>.#nixos-vm
+sudo<span class="w"> </span>nixos-rebuild<span class="w"> </span><span class="nb">test</span><span class="w"> </span>--flake<span class="w"> </span>.#nixos-vm
+sudo<span class="w"> </span>nixos-rebuild<span class="w"> </span>switch<span class="w"> </span>--flake<span class="w"> </span>.#nixos-vm
+</code></pre></div>
+
+<h3 id="203-checklist">20.3 升级前 checklist</h3>
+<div class="codehilite"><pre><span></span><code>[ ] VMware snapshot
+[ ] git status 干净
+[ ] flake.lock 已提交
+[ ] 重要数据已备份
+[ ] 知道如何从 boot menu 选旧 generation
+</code></pre></div>
+
+<hr />
+<h2 id="21_1">21. 故障排查：按层次，不要乱试</h2>
+<p>NixOS 排错建议按这 6 层：</p>
+<div class="codehilite"><pre><span></span><code>1. 命令写错了吗？
+2. Nix 语法错了吗？
+3. option 名称错了吗？
+4. 包名不存在或变了吗？
+5. 服务启动失败了吗？
+6. 系统层面，如引导、驱动、网络、磁盘？
+</code></pre></div>
+
+<h3 id="211-nix">21.1 Nix 语法错误</h3>
+<p>常见错误：</p>
+<div class="codehilite"><pre><span></span><code>忘记分号 ;
+列表里误用逗号
+字符串没加引号
+花括号不匹配
+</code></pre></div>
+
+<p>Nix 中属性赋值要分号：</p>
+<div class="codehilite"><pre><span></span><code>networking<span class="o">.</span><span class="ss">hostName</span> <span class="o">=</span> <span class="s2">&quot;nixos-vm&quot;</span><span class="p">;</span>
+</code></pre></div>
+
+<p>列表不用逗号：</p>
+<div class="codehilite"><pre><span></span><code><span class="p">[</span> git vim curl <span class="p">]</span>
+</code></pre></div>
+
+<h3 id="212-option">21.2 option 不存在</h3>
+<p>错误类似：</p>
+<div class="codehilite"><pre><span></span><code>The option `xxx.yyy.zzz` does not exist
+</code></pre></div>
+
+<p>处理：</p>
+<ol>
+<li>去 <code>https://search.nixos.org/options</code> 搜索。</li>
+<li>看报错有没有提示 renamed。</li>
+<li>确认你用的是 NixOS 26.05 对应文档。</li>
+</ol>
+<h3 id="213">21.3 包不存在</h3>
+<div class="codehilite"><pre><span></span><code>nix<span class="w"> </span>search<span class="w"> </span>nixpkgs<span class="w"> </span>包名
+</code></pre></div>
+
+<p>或者打开：</p>
+<div class="codehilite"><pre><span></span><code>https://search.nixos.org/packages
+</code></pre></div>
+
+<h3 id="214">21.4 服务失败</h3>
+<div class="codehilite"><pre><span></span><code>systemctl<span class="w"> </span>status<span class="w"> </span>服务名
+journalctl<span class="w"> </span>-u<span class="w"> </span>服务名<span class="w"> </span>-e
+journalctl<span class="w"> </span>-xe
+</code></pre></div>
+
+<h3 id="215">21.5 网络问题</h3>
+<p>查看 IP：</p>
+<div class="codehilite"><pre><span></span><code>ip<span class="w"> </span>addr
+</code></pre></div>
+
+<p>查看默认路由：</p>
+<div class="codehilite"><pre><span></span><code>ip<span class="w"> </span>route
+</code></pre></div>
+
+<p>NetworkManager：</p>
+<div class="codehilite"><pre><span></span><code>nmcli<span class="w"> </span>device
+nmcli<span class="w"> </span>connection<span class="w"> </span>show
+</code></pre></div>
+
+<h3 id="216-vmware">21.6 VMware 没网</h3>
+<p>检查：</p>
+<div class="codehilite"><pre><span></span><code>VMware Network Adapter 是否 NAT
+Win11 是否允许 VMware NAT 服务运行
+虚拟机内是否启用 networking.networkmanager.enable
+是否有 IP 地址
+</code></pre></div>
+
+<hr />
+<h2 id="22-nixos">22. 背诵清单：NixOS 高频固定件</h2>
+<h3 id="221">22.1 路径必须背</h3>
+<div class="codehilite"><pre><span></span><code>/etc/nixos/configuration.nix        主系统配置
+/etc/nixos/hardware-configuration.nix 硬件配置
+/nix/store                          包和构建结果存放地
+/nix/var/nix/profiles/system         系统 profile
+/run/current-system                  当前运行系统
+/boot                                启动相关文件
+</code></pre></div>
+
+<h3 id="222">22.2 命令必须背</h3>
+<div class="codehilite"><pre><span></span><code>sudo<span class="w"> </span>nixos-rebuild<span class="w"> </span>switch
+sudo<span class="w"> </span>nixos-rebuild<span class="w"> </span><span class="nb">test</span>
+sudo<span class="w"> </span>nixos-rebuild<span class="w"> </span>build
+sudo<span class="w"> </span>nixos-rebuild<span class="w"> </span>boot
+sudo<span class="w"> </span>nixos-rebuild<span class="w"> </span>switch<span class="w"> </span>--rollback
+nix<span class="w"> </span>search<span class="w"> </span>nixpkgs<span class="w"> </span>&lt;name&gt;
+nix<span class="w"> </span>shell<span class="w"> </span>nixpkgs#&lt;pkg&gt;
+nix<span class="w"> </span>run<span class="w"> </span>nixpkgs#&lt;pkg&gt;
+nix<span class="w"> </span>develop
+sudo<span class="w"> </span>nix-collect-garbage<span class="w"> </span>-d
+journalctl<span class="w"> </span>-xe
+systemctl<span class="w"> </span>status<span class="w"> </span>&lt;service&gt;
+</code></pre></div>
+
+<h3 id="223">22.3 配置片段必须背</h3>
+<div class="codehilite"><pre><span></span><code>environment<span class="o">.</span><span class="ss">systemPackages</span> <span class="o">=</span> <span class="k">with</span> pkgs<span class="p">;</span> <span class="p">[</span> git vim curl <span class="p">];</span>
+</code></pre></div>
+
+<div class="codehilite"><pre><span></span><code>services<span class="o">.</span>openssh<span class="o">.</span><span class="ss">enable</span> <span class="o">=</span> <span class="no">true</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="codehilite"><pre><span></span><code>networking<span class="o">.</span>networkmanager<span class="o">.</span><span class="ss">enable</span> <span class="o">=</span> <span class="no">true</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="codehilite"><pre><span></span><code>users<span class="o">.</span>users<span class="o">.</span><span class="ss">study</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="ss">isNormalUser</span> <span class="o">=</span> <span class="no">true</span><span class="p">;</span>
+  <span class="ss">extraGroups</span> <span class="o">=</span> <span class="p">[</span> <span class="s2">&quot;wheel&quot;</span> <span class="s2">&quot;networkmanager&quot;</span> <span class="p">];</span>
+<span class="p">};</span>
+</code></pre></div>
+
+<div class="codehilite"><pre><span></span><code>nix<span class="o">.</span>settings<span class="o">.</span><span class="ss">experimental-features</span> <span class="o">=</span> <span class="p">[</span> <span class="s2">&quot;nix-command&quot;</span> <span class="s2">&quot;flakes&quot;</span> <span class="p">];</span>
+</code></pre></div>
+
+<div class="codehilite"><pre><span></span><code>virtualisation<span class="o">.</span>vmware<span class="o">.</span>guest<span class="o">.</span><span class="ss">enable</span> <span class="o">=</span> <span class="no">true</span><span class="p">;</span>
+</code></pre></div>
+
+<h3 id="224">22.4 概念必须背</h3>
+<div class="codehilite"><pre><span></span><code>/nix/store：不可变、带哈希、存构建结果
+binary cache：已有相同构建结果就下载，不本地编译
+generation：每次系统切换产生的历史版本
+rollback：回到旧 generation
+declarative：描述目标状态，不描述手工步骤
+flake.lock：锁定输入版本
+module：NixOS 配置选项的组织和合并机制
+</code></pre></div>
+
+<hr />
+<h2 id="23">23. 高效学习法：按人类记忆规律设计</h2>
+<h3 id="231-4">23.1 每章学习的 4 步</h3>
+<div class="codehilite"><pre><span></span><code>1. 看概念：用自己的话说出来
+2. 跑命令：必须在 VM 里执行
+3. 改配置：最少改一行并 rebuild
+4. 做回忆：不看教程写出关键命令
+</code></pre></div>
+
+<h3 id="232">23.2 间隔复习计划</h3>
+<p>当天：</p>
+<div class="codehilite"><pre><span></span><code>学完 10 分钟后，闭眼回忆核心概念。
+</code></pre></div>
+
+<p>第 2 天：</p>
+<div class="codehilite"><pre><span></span><code>不看教程，写出安装流程和 nixos-rebuild 命令。
+</code></pre></div>
+
+<p>第 4 天：</p>
+<div class="codehilite"><pre><span></span><code>重建一台 VM，完成 SSH、软件包、VMware tools 配置。
+</code></pre></div>
+
+<p>第 7 天：</p>
+<div class="codehilite"><pre><span></span><code>把配置迁移到 Flakes，并用 Git 提交。
+</code></pre></div>
+
+<p>第 14 天：</p>
+<div class="codehilite"><pre><span></span><code>拆分模块，配置 Home Manager。
+</code></pre></div>
+
+<p>第 30 天：</p>
+<div class="codehilite"><pre><span></span><code>从零安装一台新 VM，只参考自己的配置仓库。
+</code></pre></div>
+
+<h3 id="233">23.3 主动回忆题</h3>
+<p>不要只是看答案。请拿纸写：</p>
+<ol>
+<li>Nix 为什么能同时支持源码构建和二进制缓存？</li>
+<li><code>/nix/store/&lt;hash&gt;-name</code> 的 hash 大致由什么决定？</li>
+<li><code>nixos-rebuild switch</code> 做了什么？</li>
+<li><code>system.stateVersion</code> 为什么不要随便改？</li>
+<li><code>environment.systemPackages = with pkgs; [ git ];</code> 中 <code>with pkgs</code> 是什么意思？</li>
+<li>Flakes 中 <code>flake.nix</code> 和 <code>flake.lock</code> 分别是什么？</li>
+<li>为什么 NixOS 出问题可以回滚？</li>
+<li>为什么 NixOS 不推荐手工改很多 <code>/etc</code> 文件？</li>
+</ol>
+<hr />
+<h2 id="24-30">24. 30 天学习路线</h2>
+<h3 id="1-3">第 1-3 天：跑起来</h3>
+<p>目标：成功安装 graphical ISO。</p>
+<p>任务：</p>
+<div class="codehilite"><pre><span></span><code>[ ] 创建 VMware 虚拟机
+[ ] graphical ISO 安装成功
+[ ] 登录系统
+[ ] 打开终端
+[ ] ping cache.nixos.org
+[ ] 修改 configuration.nix 添加 git/vim/htop
+[ ] sudo nixos-rebuild switch
+</code></pre></div>
+
+<p>验收：</p>
+<div class="codehilite"><pre><span></span><code>git<span class="w"> </span>--version
+vim<span class="w"> </span>--version
+htop
+</code></pre></div>
+
+<h3 id="4-7">第 4-7 天：命令行安装</h3>
+<p>目标：minimal ISO 手动安装。</p>
+<p>任务：</p>
+<div class="codehilite"><pre><span></span><code>[ ] lsblk 找磁盘
+[ ] parted 分区
+[ ] mkfs 格式化
+[ ] mount 挂载
+[ ] nixos-generate-config
+[ ] 编辑 configuration.nix
+[ ] nixos-install
+[ ] reboot
+</code></pre></div>
+
+<p>验收：</p>
+<div class="codehilite"><pre><span></span><code>lsblk<span class="w"> </span>-f
+cat<span class="w"> </span>/etc/nixos/configuration.nix
+sudo<span class="w"> </span>nixos-rebuild<span class="w"> </span>switch
+</code></pre></div>
+
+<h3 id="8-10">第 8-10 天：日常配置</h3>
+<p>目标：像正常系统一样使用。</p>
+<p>任务：</p>
+<div class="codehilite"><pre><span></span><code>[ ] SSH
+[ ] VMware guest tools
+[ ] 常用包
+[ ] 字体
+[ ] shell
+[ ] Git
+</code></pre></div>
+
+<p>验收：</p>
+<div class="codehilite"><pre><span></span><code>systemctl<span class="w"> </span>status<span class="w"> </span>sshd
+fastfetch
+</code></pre></div>
+
+<h3 id="11-15-nix">第 11-15 天：Nix 语言</h3>
+<p>目标：看懂配置。</p>
+<p>任务：</p>
+<div class="codehilite"><pre><span></span><code>[ ] 列表
+[ ] 属性集
+[ ] let in
+[ ] 函数
+[ ] with
+[ ] inherit
+[ ] import
+</code></pre></div>
+
+<p>验收：</p>
+<div class="codehilite"><pre><span></span><code>nix<span class="w"> </span>repl
+</code></pre></div>
+
+<p>在 repl 中尝试：</p>
+<div class="codehilite"><pre><span></span><code><span class="k">let</span> <span class="ss">x</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span> <span class="ss">y</span> <span class="o">=</span> <span class="mi">2</span><span class="p">;</span> <span class="k">in</span> x <span class="o">+</span> y
+<span class="p">{</span> <span class="ss">a</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span> <span class="ss">b</span> <span class="o">=</span> <span class="mi">2</span><span class="p">;</span> <span class="p">}</span><span class="o">.</span>a
+<span class="nb">map</span> <span class="p">(</span>x<span class="p">:</span> x <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="p">[</span> <span class="mi">1</span> <span class="mi">2</span> <span class="mi">3</span> <span class="p">]</span>
+</code></pre></div>
+
+<h3 id="16-20-flakes">第 16-20 天：Flakes</h3>
+<p>目标：配置可复现。</p>
+<p>任务：</p>
+<div class="codehilite"><pre><span></span><code>[ ] 启用 nix-command flakes
+[ ] 创建 flake.nix
+[ ] sudo nixos-rebuild switch --flake .#nixos-vm
+[ ] git 管理配置
+[ ] flake update
+</code></pre></div>
+
+<p>验收：</p>
+<div class="codehilite"><pre><span></span><code>nix<span class="w"> </span>flake<span class="w"> </span>show
+sudo<span class="w"> </span>nixos-rebuild<span class="w"> </span>build<span class="w"> </span>--flake<span class="w"> </span>.#nixos-vm
+</code></pre></div>
+
+<h3 id="21-24-home-manager">第 21-24 天：模块拆分和 Home Manager</h3>
+<p>目标：配置工程化。</p>
+<p>任务：</p>
+<div class="codehilite"><pre><span></span><code>[ ] 拆 packages.nix
+[ ] 拆 users.nix
+[ ] 拆 vmware.nix
+[ ] 添加 Home Manager
+[ ] 管理 git/shell/editor
+</code></pre></div>
+
+<h3 id="25-27">第 25-27 天：服务和排错</h3>
+<p>目标：能自己定位问题。</p>
+<p>任务：</p>
+<div class="codehilite"><pre><span></span><code>[ ] 开启 nginx 或 openssh
+[ ] systemctl 查看状态
+[ ] journalctl 查日志
+[ ] 故意写错 option，读懂报错
+[ ] 回滚 generation
+</code></pre></div>
+
+<h3 id="28-30">第 28-30 天：专业项目</h3>
+<p>任选一个：</p>
+<div class="codehilite"><pre><span></span><code>A. 从零安装一台新 VM，只用你的 flake 配置恢复环境
+B. 写一个 devShell 管理 Python/Node 项目环境
+C. 打包一个简单脚本为 Nix package
+D. 配置 Nginx 静态网站服务
+E. 把 Home Manager 和 NixOS 配置整合进同一个 flake
+</code></pre></div>
+
+<hr />
+<h2 id="25-8">25. 练习项目：从新手到专业的 8 个小项目</h2>
+<h3 id="1-nixos">项目 1：我的第一台可回滚 NixOS</h3>
+<p>要求：</p>
+<div class="codehilite"><pre><span></span><code>graphical ISO 安装
+添加 10 个常用包
+创建 VMware snapshot
+故意改错配置
+修复或回滚
+</code></pre></div>
+
+<h3 id="2minimal-iso">项目 2：minimal ISO 手动安装</h3>
+<p>要求：</p>
+<div class="codehilite"><pre><span></span><code>UEFI + GPT
+ESP 512M
+root ext4
+手动配置用户和 SSH
+</code></pre></div>
+
+<h3 id="3">项目 3：我的配置仓库</h3>
+<p>要求：</p>
+<div class="codehilite"><pre><span></span><code>Git 管理 /etc/nixos 或 ~/nixos-config
+提交 flake.nix、configuration.nix
+至少拆 3 个模块
+</code></pre></div>
+
+<h3 id="4">项目 4：开发环境模板</h3>
+<p>要求：</p>
+<div class="codehilite"><pre><span></span><code>写 flake.nix
+提供 devShell
+包含 Python/Node/Git
+nix develop 进入环境
+</code></pre></div>
+
+<h3 id="5home-manager">项目 5：Home Manager 用户环境</h3>
+<p>要求：</p>
+<div class="codehilite"><pre><span></span><code>声明式配置 git
+声明式配置 shell
+声明式安装用户软件
+</code></pre></div>
+
+<h3 id="6">项目 6：服务部署</h3>
+<p>要求：</p>
+<div class="codehilite"><pre><span></span><code>启用 nginx
+放一个 index.html
+systemctl 查看服务
+journalctl 查看日志
+</code></pre></div>
+
+<h3 id="7">项目 7：打包简单脚本</h3>
+<p>要求：</p>
+<div class="codehilite"><pre><span></span><code>写一个 hello 脚本
+用 writeShellApplication 或 stdenv.mkDerivation 打包
+nix run 运行
+</code></pre></div>
+
+<h3 id="8">项目 8：迁移实验</h3>
+<p>要求：</p>
+<div class="codehilite"><pre><span></span><code>新建第二台 VMware NixOS VM
+用同一份 flake 配置重建系统
+记录哪些状态没有被配置管理覆盖
+</code></pre></div>
+
+<hr />
+<h2 id="26-12">26. 新手最容易误解的 12 件事</h2>
+<h3 id="261">26.1 “我装了包，为什么命令没有？”</h3>
+<p>你可能只是写进配置但没 rebuild。</p>
+<div class="codehilite"><pre><span></span><code>sudo<span class="w"> </span>nixos-rebuild<span class="w"> </span>switch
+</code></pre></div>
+
+<h3 id="262-apt-install">26.2 “我能不能直接 apt install？”</h3>
+<p>NixOS 不使用 APT。用 Nix/NixOS 的方式管理包。</p>
+<h3 id="263-etc">26.3 “为什么不建议手工改 /etc？”</h3>
+<p>因为 NixOS 中很多 <code>/etc</code> 文件由配置生成。你手工改可能下次 rebuild 被覆盖。</p>
+<h3 id="264">26.4 “为什么安装同一个包有很多方式？”</h3>
+<p>因为层次不同：</p>
+<div class="codehilite"><pre><span></span><code>nix shell：临时
+nix profile：用户 profile
+configuration.nix：系统级声明式
+Home Manager：用户级声明式
+flake devShell：项目开发环境
+</code></pre></div>
+
+<h3 id="265-systemstateversion">26.5 “system.stateVersion 是不是要跟着升级？”</h3>
+<p>通常不要。它不是系统版本选择器。</p>
+<h3 id="266-flakes">26.6 “Flakes 是不是必须？”</h3>
+<p>不是必须，但非常适合专业化配置管理。官方仍标为 experimental，社区广泛使用。</p>
+<h3 id="267-nixos">26.7 “NixOS 会不会很占磁盘？”</h3>
+<p>会比一些传统发行版更容易积累历史版本和 store path。学会 GC 即可。</p>
+<h3 id="268">26.8 “为什么配置里有些选项网上教程不一样？”</h3>
+<p>NixOS options 会演进。以你当前版本的 options search 和构建错误为准。</p>
+<h3 id="269-vmware">26.9 “为什么 VMware 复制粘贴不稳定？”</h3>
+<p>确认：</p>
+<div class="codehilite"><pre><span></span><code>virtualisation<span class="o">.</span>vmware<span class="o">.</span>guest<span class="o">.</span><span class="ss">enable</span> <span class="o">=</span> <span class="no">true</span><span class="p">;</span>
+</code></pre></div>
+
+<p>并优先用 Xorg session。Wayland 下 VMware 集成功能有限。</p>
+<h3 id="2610">26.10 “为什么有时会从源码编译很久？”</h3>
+<p>可能原因：</p>
+<div class="codehilite"><pre><span></span><code>缓存中没有对应构建结果
+你改了构建参数
+用了不常见包或 overlay
+网络访问缓存失败
+</code></pre></div>
+
+<h3 id="2611">26.11 “为什么包名和命令名不一致？”</h3>
+<p>Nixpkgs 属性名不一定等于命令名。用：</p>
+<div class="codehilite"><pre><span></span><code>nix<span class="w"> </span>search<span class="w"> </span>nixpkgs<span class="w"> </span>&lt;keyword&gt;
+</code></pre></div>
+
+<h3 id="2612-flake">26.12 “为什么我看不懂别人复杂 flake？”</h3>
+<p>正常。先掌握最小 <code>flake.nix</code>，再学 <code>let</code>、模块拆分、Home Manager、flake-parts 等工具。</p>
+<hr />
+<h2 id="27-nixos">27. 关键原理深挖：为什么 NixOS 可回滚</h2>
+<p>传统系统升级常常原地覆盖：</p>
+<div class="codehilite"><pre><span></span><code>/usr/bin/foo 旧版本被新版本覆盖
+/etc/foo.conf 被改写
+库文件被替换
+</code></pre></div>
+
+<p>NixOS 不是这样。它构建一个新的 system closure：</p>
+<div class="codehilite"><pre><span></span><code>/nix/store/hash1-system-旧
+/nix/store/hash2-system-新
+</code></pre></div>
+
+<p>切换时改变的是 profile/symlink 指向，而不是把旧文件原地覆盖。</p>
+<p>因此：</p>
+<div class="codehilite"><pre><span></span><code>旧系统还在 → boot menu 能选旧 generation → 可以回滚
+</code></pre></div>
+
+<p>记忆：</p>
+<blockquote>
+<p>NixOS 升级像新建一个平行系统，然后把“当前系统”指针切过去。</p>
+</blockquote>
+<hr />
+<h2 id="28-nixos">28. 关键原理深挖：为什么 NixOS 可复现但不是魔法</h2>
+<p>Nix 通过记录输入来增强可复现性：</p>
+<div class="codehilite"><pre><span></span><code>源码 hash
+依赖版本
+构建脚本
+编译参数
+补丁
+</code></pre></div>
+
+<p>但是现实中仍有边界：</p>
+<ul>
+<li>上游源码是否稳定可获取。</li>
+<li>构建过程是否真的不依赖时间、网络、CPU 特性等隐性输入。</li>
+<li>你的配置是否把所有需要的状态都声明了。</li>
+<li>数据库、用户数据、浏览器缓存这类运行时状态不自动变成声明式。</li>
+</ul>
+<p>专业理解：</p>
+<blockquote>
+<p>NixOS 让“系统配置和软件环境”高度可复现，但不等于自动备份和复现所有个人数据。</p>
+</blockquote>
+<hr />
+<h2 id="29">29. 推荐最终配置结构</h2>
+<p>当你学到第 20 天左右，建议目标结构：</p>
+<div class="codehilite"><pre><span></span><code>~/nixos-config/
+  flake.nix
+  flake.lock
+  hosts/
+    nixos-vm/
+      configuration.nix
+      hardware-configuration.nix
+  modules/
+    common.nix
+    packages.nix
+    users.nix
+    vmware.nix
+    desktop.nix
+    ssh.nix
+  home/
+    study.nix
+</code></pre></div>
+
+<p><code>flake.nix</code> 统一入口：</p>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span>
+  <span class="ss">description</span> <span class="o">=</span> <span class="s2">&quot;My NixOS configurations&quot;</span><span class="p">;</span>
+
+  <span class="ss">inputs</span> <span class="o">=</span> <span class="p">{</span>
+    nixpkgs<span class="o">.</span><span class="ss">url</span> <span class="o">=</span> <span class="s2">&quot;github:NixOS/nixpkgs/nixos-26.05&quot;</span><span class="p">;</span>
+  <span class="p">};</span>
+
+  <span class="ss">outputs</span> <span class="o">=</span> <span class="p">{</span> self<span class="p">,</span> nixpkgs<span class="p">,</span> <span class="o">...</span> <span class="p">}:</span>
+  <span class="p">{</span>
+    nixosConfigurations<span class="o">.</span><span class="ss">nixos-vm</span> <span class="o">=</span> nixpkgs<span class="o">.</span>lib<span class="o">.</span>nixosSystem <span class="p">{</span>
+      <span class="ss">system</span> <span class="o">=</span> <span class="s2">&quot;x86_64-linux&quot;</span><span class="p">;</span>
+      <span class="ss">modules</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="l">./hosts/nixos-vm/configuration.nix</span>
+      <span class="p">];</span>
+    <span class="p">};</span>
+  <span class="p">};</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>执行：</p>
+<div class="codehilite"><pre><span></span><code>sudo<span class="w"> </span>nixos-rebuild<span class="w"> </span>switch<span class="w"> </span>--flake<span class="w"> </span>~/nixos-config#nixos-vm
+</code></pre></div>
+
+<hr />
+<h2 id="30">30. 你应该形成的专业习惯</h2>
+<h3 id="301">30.1 每次改配置前</h3>
+<div class="codehilite"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>~/nixos-config
+git<span class="w"> </span>status
+</code></pre></div>
+
+<h3 id="302">30.2 每次改配置后</h3>
+<div class="codehilite"><pre><span></span><code>sudo<span class="w"> </span>nixos-rebuild<span class="w"> </span>build<span class="w"> </span>--flake<span class="w"> </span>.#nixos-vm
+sudo<span class="w"> </span>nixos-rebuild<span class="w"> </span>switch<span class="w"> </span>--flake<span class="w"> </span>.#nixos-vm
+git<span class="w"> </span>diff
+git<span class="w"> </span>add<span class="w"> </span>.
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;describe change&quot;</span>
+</code></pre></div>
+
+<h3 id="303">30.3 每次升级前</h3>
+<div class="codehilite"><pre><span></span><code>vmware<span class="w"> </span>snapshot
+git<span class="w"> </span>status
+nix<span class="w"> </span>flake<span class="w"> </span>update
+sudo<span class="w"> </span>nixos-rebuild<span class="w"> </span>build<span class="w"> </span>--flake<span class="w"> </span>.#nixos-vm
+</code></pre></div>
+
+<h3 id="304">30.4 每次出错时</h3>
+<div class="codehilite"><pre><span></span><code>先读完整报错
+再定位是 Nix 语法、option、包、服务、系统哪一层
+不要随机复制十段配置
+</code></pre></div>
+
+<hr />
+<h2 id="31">31. 最短速查表</h2>
+<h3 id="_1">安装流程速记</h3>
+<div class="codehilite"><pre><span></span><code>lsblk
+parted
+mkfs
+mount
+nixos-generate-config
+edit configuration.nix
+nixos-install
+reboot
+</code></pre></div>
+
+<h3 id="_2">配置流程速记</h3>
+<div class="codehilite"><pre><span></span><code>edit /etc/nixos/configuration.nix
+sudo nixos-rebuild switch
+</code></pre></div>
+
+<h3 id="flake">Flake 流程速记</h3>
+<div class="codehilite"><pre><span></span><code>edit flake.nix/configuration.nix
+sudo nixos-rebuild switch --flake .#host
+</code></pre></div>
+
+<h3 id="_3">排错流程速记</h3>
+<div class="codehilite"><pre><span></span><code>read error
+search option/package
+nixos-rebuild build
+default to rollback if needed
+journalctl/systemctl for services
+</code></pre></div>
+
+<hr />
+<h2 id="32">32. 后续学习资源</h2>
+<p>建议按顺序看：</p>
+<ol>
+<li>NixOS-CN 概念教程：先建立中文直觉。</li>
+<li>NixOS Manual：查安装、配置、升级、服务选项。</li>
+<li>nix.dev First steps：学习现代 Nix 命令。</li>
+<li>nix.dev Nix language basics：补 Nix 语言。</li>
+<li>NixOS options search：查配置项。</li>
+<li>Nixpkgs manual：学习打包、override、overlay。</li>
+<li>Official NixOS Wiki：查 VMware、桌面、硬件等主题。</li>
+</ol>
+<hr />
+<h2 id="33">33. 最后给你的学习建议</h2>
+<p>NixOS 最难的阶段是前 10 天，因为你同时在学：</p>
+<div class="codehilite"><pre><span></span><code>Linux 基础
+Nix 包管理
+Nix 语言
+NixOS 模块系统
+虚拟机安装
+</code></pre></div>
+
+<p>不要试图第一天把所有东西弄完。你的最佳路线是：</p>
+<div class="codehilite"><pre><span></span><code>先 graphical ISO 成功一次
+再 minimal ISO 手动一次
+再把配置写进 Git
+再迁移到 Flakes
+再拆模块
+再学 Home Manager
+最后学打包和 overlay
+</code></pre></div>
+
+<p>真正的 NixOS 能力不是记住某个配置片段，而是形成这套思维：</p>
+<blockquote>
+<p><strong>任何系统状态，都尽量问：它能不能被声明？能不能被版本管理？能不能在另一台机器复现？出了错能不能回滚？</strong></p>
+</blockquote>
+<p>当你开始用这四个问题思考，你就已经从“会用 NixOS”进入“理解 NixOS”了。</p>
+</article>
+
+<button id="scroll-top" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="回到顶部">↑</button>
+
+<script>
+// Scroll to top button visibility
+const btn = document.getElementById('scroll-top');
+window.addEventListener('scroll', function() {
+  if (window.scrollY > 400) {
+    btn.classList.add('visible');
+  } else {
+    btn.classList.remove('visible');
+  }
+});
+</script>
+
+</body>
+</html>
