@@ -187,6 +187,40 @@ class Service
             return DataReturn($ret, -1);
         }
 
+        // 生日优惠信息校验（折扣率 0~0.99、0 表示无生日折扣）
+        if(isset($params['birthday_discount_rate']) && $params['birthday_discount_rate'] !== '')
+        {
+            $params['birthday_discount_rate'] = floatval($params['birthday_discount_rate']);
+            if($params['birthday_discount_rate'] < 0 || $params['birthday_discount_rate'] > 0.99)
+            {
+                return DataReturn('生日折扣率应输入 0.00~0.99 的数字,小数保留两位', -1);
+            }
+        } else {
+            $params['birthday_discount_rate'] = 0;
+        }
+        // 生日满减金额校验
+        $p_price = [
+            [
+                'checked_type'      => 'fun',
+                'key_name'          => 'birthday_order_price',
+                'checked_data'      => 'CheckPrice',
+                'is_checked'        => 1,
+                'error_msg'         => '请输入有效的生日满减订单满金额',
+            ],
+            [
+                'checked_type'      => 'fun',
+                'key_name'          => 'birthday_full_reduction_price',
+                'checked_data'      => 'CheckPrice',
+                'is_checked'        => 1,
+                'error_msg'         => '请输入有效的生日满减金额',
+            ],
+        ];
+        $ret = ParamsChecked($params, $p_price);
+        if($ret !== true)
+        {
+            return DataReturn($ret, -1);
+        }
+
         // 数据字段
         $data_field = 'level_list';
 
@@ -204,6 +238,10 @@ class Service
             'discount_rate'         => isset($params['discount_rate']) ? $params['discount_rate'] : 0,
             'order_price'           => empty($params['order_price']) ? 0.00 : PriceNumberFormat($params['order_price']),
             'full_reduction_price'  => empty($params['full_reduction_price']) ? 0.00 : PriceNumberFormat($params['full_reduction_price']),
+            // 生日优惠信息
+            'birthday_discount_rate'        => isset($params['birthday_discount_rate']) ? $params['birthday_discount_rate'] : 0,
+            'birthday_order_price'          => empty($params['birthday_order_price']) ? 0.00 : PriceNumberFormat($params['birthday_order_price']),
+            'birthday_full_reduction_price' => empty($params['birthday_full_reduction_price']) ? 0.00 : PriceNumberFormat($params['birthday_full_reduction_price']),
             'operation_time'        => time(),
         ];
 
@@ -627,6 +665,90 @@ class Service
         }
         // 原价与售价一致（容差 0.001）
         return abs(floatval($original_price) - floatval($price)) < 0.001;
+    }
+
+    /**
+     * 用户当天是否生日
+     * @author  Devil
+     * @blog    http://gong.gg/
+     * @version 1.0.0
+     * @date    2026-09-07
+     * @desc    description
+     * @param   [array]          $user [用户信息]
+     * @return  [boolean]              是否生日当天（未设置生日则 false）
+     */
+    public static function IsUserBirthdayToday($user = [])
+    {
+        // 未指定用户信息则读取当前登录用户
+        if(empty($user))
+        {
+            $user = UserService::LoginUserInfo();
+        }
+        if(empty($user) || empty($user['id']))
+        {
+            return false;
+        }
+
+        // 生日（用户缓存中可能为时间戳或 yyyy-MM-dd 文本，为空则查询数据库）
+        $birthday = (empty($user['birthday']) || $user['birthday'] == 0 || $user['birthday'] == '0000-00-00') ? '' : $user['birthday'];
+        $timestamp = 0;
+        if($birthday !== '')
+        {
+            // 数字则为时间戳、否则按日期格式解析
+            $timestamp = (is_numeric($birthday)) ? intval($birthday) : strtotime($birthday);
+        }
+        if($timestamp <= 0)
+        {
+            $timestamp = intval(Db::name('User')->where(['id'=>$user['id']])->value('birthday'));
+        }
+        if($timestamp > 0)
+        {
+            // 月日相同则当天生日（年份忽略）
+            return date('md', $timestamp) == date('md');
+        }
+        return false;
+    }
+
+    /**
+     * 等级优惠数据（生日当天使用生日优惠信息、否则使用日常优惠信息）
+     * @author  Devil
+     * @blog    http://gong.gg/
+     * @version 1.0.0
+     * @date    2026-09-07
+     * @desc    description
+     * @param   [array]          $level [等级数据]
+     * @param   [array]          $user  [用户信息]
+     * @return  [array]                 处理后的等级优惠数据（含 discount_rate/order_price/full_reduction_price）
+     */
+    public static function LevelDiscountData($level = [], $user = [])
+    {
+        if(empty($level))
+        {
+            return $level;
+        }
+
+        // 非生日当天则直接使用日常优惠信息
+        if(!self::IsUserBirthdayToday($user))
+        {
+            return $level;
+        }
+
+        // 生日优惠配置
+        $birthday_discount_rate = (isset($level['birthday_discount_rate']) && $level['birthday_discount_rate'] > 0) ? floatval($level['birthday_discount_rate']) : 0;
+        $birthday_order_price = (isset($level['birthday_order_price']) && $level['birthday_order_price'] > 0) ? floatval($level['birthday_order_price']) : 0;
+        $birthday_full_reduction_price = (isset($level['birthday_full_reduction_price']) && $level['birthday_full_reduction_price'] > 0) ? floatval($level['birthday_full_reduction_price']) : 0;
+
+        // 生日当天生日优惠未配置（折扣与满减均为空）则沿用日常优惠信息
+        if($birthday_discount_rate <= 0 && $birthday_order_price <= 0 && $birthday_full_reduction_price <= 0)
+        {
+            return $level;
+        }
+
+        // 生日优惠信息覆盖日常优惠字段（供价格与满减计算使用）
+        $level['discount_rate'] = $birthday_discount_rate;
+        $level['order_price'] = $birthday_order_price;
+        $level['full_reduction_price'] = $birthday_full_reduction_price;
+        return $level;
     }
 
 }

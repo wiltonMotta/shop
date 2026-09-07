@@ -117,8 +117,8 @@ class Hook
     {
         if(!empty($params['data']))
         {
-            // 用户等级
-            $vip = Service::UserLevelMatching();
+            // 用户等级（并按生日当天切换生日优惠/日常优惠）
+            $vip = Service::LevelDiscountData(Service::UserLevelMatching());
             if(!empty($vip))
             {
                 $order_price = isset($vip['order_price']) ? $vip['order_price'] : 0;
@@ -158,8 +158,9 @@ class Hook
      */
     private function GoodsHandleEnd(&$goods = [])
     {
-        // 用户等级（未登录或非会员不处理）
-        $level = Service::UserLevelMatching();
+        // 用户等级（未登录或非会员不处理）、并按生日当天切换生日优惠/日常优惠
+        $level = Service::LevelDiscountData(Service::UserLevelMatching());
+
         // 存在会员等级，且等级折扣或会员日折扣任一启用才处理
         if(!empty($level) && ($level['discount_rate'] > 0 || Service::IsMemberDayDiscountEnable()))
         {
@@ -217,8 +218,8 @@ class Hook
      */
     private function GoodsSpecBase($params = [])
     {
-        // 用户等级（未登录或非会员不处理）
-        $level = Service::UserLevelMatching();
+        // 用户等级（未登录或非会员不处理）、并按生日当天切换生日优惠/日常优惠
+        $level = Service::LevelDiscountData(Service::UserLevelMatching());
         // 存在会员等级，且等级折扣或会员日折扣任一启用才处理
         if(!empty($level) && ($level['discount_rate'] > 0 || Service::IsMemberDayDiscountEnable()) && isset($params['data']['spec_base']['price']))
         {

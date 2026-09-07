@@ -31,7 +31,8 @@
                         <th>名称</th>
                         <th>图标</th>
                         <th>规则值</th>
-                        <th>优惠信息</th>
+                        <th>日常优惠信息</th>
+                        <th>生日优惠信息</th>
                         <th class="am-hide-sm-only">{{:MyLang('form_is_enable_title')}}</th>
                         <th class="am-hide-sm-only">操作时间</th>
                         {{if !isset($params['is_admin_index']) or $params['is_admin_index'] neq 1}}
@@ -63,6 +64,19 @@
                                     <br />
                                     折扣：{{if $v['discount_rate']}}
                                         {{$v.discount_rate}}折
+                                    {{else /}}
+                                        <span class="am-text-grey">无折扣</span>
+                                    {{/if}}
+                                </td>
+                                <td>
+                                    满减：{{if isset($v['birthday_order_price']) and $v['birthday_order_price'] gt 0 and isset($v['birthday_full_reduction_price']) and $v['birthday_full_reduction_price'] gt 0}}
+                                        满{{$v.birthday_order_price}} 减{{$v.birthday_full_reduction_price}}
+                                    {{else /}}
+                                        <span class="am-text-grey">无满减</span>
+                                    {{/if}}
+                                    <br />
+                                    折扣：{{if isset($v['birthday_discount_rate']) and $v['birthday_discount_rate'] gt 0}}
+                                        {{$v.birthday_discount_rate}}折
                                     {{else /}}
                                         <span class="am-text-grey">无折扣</span>
                                     {{/if}}
