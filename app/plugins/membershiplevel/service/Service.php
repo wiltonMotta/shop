@@ -26,7 +26,8 @@ class Service
 {
     // 基础数据附件字段
     public static $base_config_attachment_field = [
-        'default_level_images'
+        'default_level_images',
+        'card_bg_image'
     ];
 
     // 等级规则

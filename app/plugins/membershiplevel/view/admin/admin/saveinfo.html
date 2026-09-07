@@ -57,6 +57,24 @@
                 <input type="number" name="member_day_integral_rate" placeholder="1~3" min="1" max="3" step="0.5" value="{{if isset($data['member_day_integral_rate'])}}{{$data.member_day_integral_rate}}{{else /}}1{{/if}}" class="am-radius" />
             </div>
 
+            <div class="am-form-group am-form-file">
+                <label class="am-block">会员卡背景图片<span class="am-form-group-label-tips">用于小程序【我的】页会员卡片背景，建议宽高比 17:10（如 850*500px）</span></label>
+                <div class="am-form-file-upload-container">
+                    <ul class="plug-file-upload-view plugins-card_bg_image-view" data-form-name="card_bg_image" data-max-number="1" data-dialog-type="images">
+                        {{if !empty($data['card_bg_image'])}}
+                            <li>
+                                <input type="text" name="card_bg_image" value="{{$data.card_bg_image}}" />
+                                <img src="{{$data.card_bg_image}}" />
+                                <i class="iconfont icon-close"></i>
+                            </li>
+                        {{/if}}
+                    </ul>
+                    <div class="plug-file-upload-submit" data-view-tag="ul.plugins-card_bg_image-view">
+                        <i class="iconfont icon-add"></i>
+                    </div>
+                </div>
+            </div>
+
             <div class="am-form-popup-submit">
                 <a href="{{:PluginsAdminUrl('membershiplevel', 'admin', 'index', $params)}}" class="am-btn am-btn-warning am-radius am-btn-xs am-margin-right-lg">
                     <i class="am-icon-mail-reply"></i>
