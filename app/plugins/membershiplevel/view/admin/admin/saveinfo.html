@@ -41,6 +41,22 @@
                 </div>
             </div>
 
+
+            <div class="am-form-group">
+                <label>会员日<span class="am-form-group-label-tips">每月几号、多个日期用逗号分割（如 1,15 表示每月1日和15日）、留空则不启用</span></label>
+                <input type="text" name="member_day" placeholder="如：1,15" value="{{if isset($data['member_day'])}}{{$data.member_day}}{{/if}}" class="am-radius" />
+            </div>
+
+            <div class="am-form-group">
+                <label>会员日商品折扣<span class="am-form-group-label-tips">0 代表不打折、最大 0.99（即最低99折）；与会员等级折扣不叠加、取二者最低折扣</span></label>
+                <input type="number" name="member_day_discount" placeholder="0~0.99" min="0" max="0.99" step="0.01" value="{{if isset($data['member_day_discount'])}}{{$data.member_day_discount}}{{/if}}" class="am-radius" />
+            </div>
+
+            <div class="am-form-group">
+                <label>会员日积分倍率<span class="am-form-group-label-tips">1 为正常积分、1.5 为1.5倍积分、2 为双倍积分、3 为3倍积分</span></label>
+                <input type="number" name="member_day_integral_rate" placeholder="1~3" min="1" max="3" step="0.5" value="{{if isset($data['member_day_integral_rate'])}}{{$data.member_day_integral_rate}}{{else /}}1{{/if}}" class="am-radius" />
+            </div>
+
             <div class="am-form-popup-submit">
                 <a href="{{:PluginsAdminUrl('membershiplevel', 'admin', 'index', $params)}}" class="am-btn am-btn-warning am-radius am-btn-xs am-margin-right-lg">
                     <i class="am-icon-mail-reply"></i>

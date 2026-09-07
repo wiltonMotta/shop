@@ -753,6 +753,11 @@ class BaseService
         {
             return null;
         }
+        // 插件未启用则不处理（PluginsData 仅读配置，不判断启用状态）
+        if(PluginsService::PluginsStatus('usernotloginhidegoodsprice') != 1)
+        {
+            return null;
+        }
         $ret = PluginsService::PluginsData('usernotloginhidegoodsprice');
         if($ret['code'] != 0 || empty($ret['data']))
         {

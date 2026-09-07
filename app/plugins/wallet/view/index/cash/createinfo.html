@@ -27,7 +27,9 @@
             <!-- user menu end -->
 
             {{if isset($check_status) and $check_status eq 1}}
-                {{if empty($user_cash_type_list)}}
+                {{if empty($cash_apply_available.is_available)}}
+                    {{include file="../../../plugins/wallet/view/index/cash/module/unavailable" /}}
+                {{elseif empty($user_cash_type_list)}}
                     <div class="table-no">
                         <i class="am-icon-warning"></i>
                         <span>管理员未设置提现方式，请联系管理员处理！</span>

@@ -158,27 +158,50 @@ class Hook
      */
     private function GoodsHandleEnd(&$goods = [])
     {
-        // 用户等级
+        // 用户等级（未登录或非会员不处理）
         $level = Service::UserLevelMatching();
-        if(!empty($level) && $level['discount_rate'] > 0)
+        // 存在会员等级，且等级折扣或会员日折扣任一启用才处理
+        if(!empty($level) && ($level['discount_rate'] > 0 || Service::IsMemberDayDiscountEnable()))
         {
             // 无价格字段则不处理
             if(isset($goods['price']))
             {
-                $goods['original_price'] = $goods['price'];
-                $goods['price'] = Service::PriceCalculate($goods['price'], $level['discount_rate'], 0);
-                $price_title = empty($level['name']) ? '会员价' : $level['name'];
-                $goods['show_field_price_text'] = '<span class="price-icon flash">'.$price_title.'</span>';
-            }
+                // 仅正价商品（原价=售价）才支持会员等级折扣与会员日折扣
+                $goods_original_price = (isset($goods['original_price']) && $goods['original_price'] !== null && $goods['original_price'] !== '') ? $goods['original_price'] : $goods['price'];
+                if(Service::IsNormalPriceGoods($goods_original_price, $goods['price']))
+                {
+                    // 最终折扣率（会员日折扣与会员等级折扣取最低）
+                    $discount_rate = Service::FinalGoodsDiscountRate($level['discount_rate']);
+                    if($discount_rate > 0 && $discount_rate < 1)
+                    {
+                        // 未设置原价或原价等于售价则当前价作为原价展示
+                        if($goods_original_price == $goods['price'])
+                        {
+                            $goods['original_price'] = $goods['price'];
+                        }
+                        $goods['price'] = Service::PriceCalculate($goods['price'], $discount_rate, 0);
 
-            // 最低价最高价
-            if(isset($goods['min_price']))
-            {
-                $goods['min_price'] = Service::PriceCalculate($goods['min_price'], $level['discount_rate'], 0);
-            }
-            if(isset($goods['max_price']))
-            {
-                $goods['max_price'] = Service::PriceCalculate($goods['max_price'], $level['discount_rate'], 0);
+                        // 价格标识（会员日与等级名组合）
+                        $price_title = Service::IsMemberDayDiscountEnable() ? '会员日' : '';
+                        if($level['discount_rate'] > 0)
+                        {
+                            $name = empty($level['name']) ? '会员价' : $level['name'];
+                            $price_title = empty($price_title) ? $name : $price_title.'·'.$name;
+                        }
+                        $price_title = empty($price_title) ? '会员价' : $price_title;
+                        $goods['show_field_price_text'] = '<span class="price-icon flash">'.$price_title.'</span>';
+
+                        // 最低价最高价
+                        if(isset($goods['min_price']))
+                        {
+                            $goods['min_price'] = Service::PriceCalculate($goods['min_price'], $discount_rate, 0);
+                        }
+                        if(isset($goods['max_price']))
+                        {
+                            $goods['max_price'] = Service::PriceCalculate($goods['max_price'], $discount_rate, 0);
+                        }
+                    }
+                }
             }
         }
     }
@@ -194,15 +217,27 @@ class Hook
      */
     private function GoodsSpecBase($params = [])
     {
-        // 用户等级
+        // 用户等级（未登录或非会员不处理）
         $level = Service::UserLevelMatching();
-        if(!empty($level) && $level['discount_rate'] > 0 && isset($params['data']['spec_base']['price']))
+        // 存在会员等级，且等级折扣或会员日折扣任一启用才处理
+        if(!empty($level) && ($level['discount_rate'] > 0 || Service::IsMemberDayDiscountEnable()) && isset($params['data']['spec_base']['price']))
         {
-            if(empty($params['data']['spec_base']['original_price']))
+            // 仅正价规格（原价=售价）才支持会员等级折扣与会员日折扣
+            $spec = $params['data']['spec_base'];
+            $spec_original_price = (isset($spec['original_price']) && $spec['original_price'] !== null && $spec['original_price'] !== '') ? $spec['original_price'] : $spec['price'];
+            if(Service::IsNormalPriceGoods($spec_original_price, $spec['price']))
             {
-                $params['data']['spec_base']['original_price'] = $params['data']['spec_base']['price'];
+                // 最终折扣率（会员日折扣与会员等级折扣取最低）
+                $discount_rate = Service::FinalGoodsDiscountRate($level['discount_rate']);
+                if($discount_rate > 0 && $discount_rate < 1)
+                {
+                    if(empty($spec['original_price']))
+                    {
+                        $params['data']['spec_base']['original_price'] = $spec['price'];
+                    }
+                    $params['data']['spec_base']['price'] = Service::PriceCalculate($spec['price'], $discount_rate, 0);
+                }
             }
-            $params['data']['spec_base']['price'] = Service::PriceCalculate($params['data']['spec_base']['price'], $level['discount_rate'], 0);
         }
     }
 }

@@ -260,7 +260,7 @@ class IntegralService
         }
 
         // 订单
-        $order = Db::name('Order')->field('id,user_id,status')->find(intval($params['order_id']));
+        $order = Db::name('Order')->field('id,user_id,status,add_time')->find(intval($params['order_id']));
         if(empty($order))
         {
             return DataReturn(MyLang('common_service.integral.order_empty_exit_tips'), 0);
@@ -299,6 +299,21 @@ class IntegralService
                         {
                             // 实际赠送积分
                             $give_integral = intval(($give_rate/100)*$dv['total_price']);
+
+                            // 会员日积分倍率（会员等级插件支持、按下单时间判断、非会员日或插件未启用则倍率为 1）
+                            $member_day_integral_rate = 1;
+                            if(class_exists('\\app\\plugins\\membershiplevel\\service\\Service') && method_exists('\\app\\plugins\\membershiplevel\\service\\Service', 'MemberDayIntegralRate'))
+                            {
+                                $member_day_integral_rate = floatval(\app\plugins\membershiplevel\service\Service::MemberDayIntegralRate($order['add_time']));
+                                if($member_day_integral_rate <= 0)
+                                {
+                                    $member_day_integral_rate = 1;
+                                }
+                            }
+                            if($member_day_integral_rate > 1)
+                            {
+                                $give_integral = intval($give_integral*$member_day_integral_rate);
+                            }
                             if($give_integral >= 1)
                             {
                                 // 是否已存在日志记录

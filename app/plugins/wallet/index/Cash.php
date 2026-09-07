@@ -91,6 +91,7 @@ class Cash extends Common
 
         // 认证方式
         MyViewAssign('check_account_list', CashService::UserCheckAccountList($this->user));
+        MyViewAssign('cash_apply_available', CashService::CashApplyAvailableData($this->user_wallet, $this->plugins_config));
 
         // 浏览器名称
         MyViewAssign('home_seo_site_title', SeoService::BrowserSeoTitle('余额提现 - 我的钱包', 1));
@@ -122,14 +123,16 @@ class Cash extends Common
         // 安全校验通过
         $can_cash_max_money = 0;
         $cash_input_max_money = 0;
+        $cash_apply_available = CashService::CashApplyAvailableData($this->user_wallet, $this->plugins_config);
         if($check_status == 1)
         {
             // 可提现最大金额
-            $can_cash_max_money = CashService::CanCashMaxMoney($this->user_wallet, $this->plugins_config);
+            $can_cash_max_money = $cash_apply_available['can_cash_max_money'];
             $cash_input_max_money = CashService::CashInputMaxMoney($this->user_wallet, $this->plugins_config);
         }
         MyViewAssign('can_cash_max_money', $can_cash_max_money);
         MyViewAssign('cash_input_max_money', $cash_input_max_money);
+        MyViewAssign('cash_apply_available', $cash_apply_available);
 
         // 当前用户是否已存在openid
         $user_weixin_openid_ret = BaseService::UserWeixinOpenidValue($this->user['id']);

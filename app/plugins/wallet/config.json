@@ -5,7 +5,7 @@
         "logo":"\/static\/upload\/images\/plugins_wallet\/2019\/04\/28\/1556447296647734.jpg",
         "author":"Devil",
         "author_url":"https:\/\/shopxo.net\/",
-        "version":"3.3.5",
+        "version":"3.3.6",
         "desc":"用户钱包，钱包余额修改，在线充值（固定金额或比例赠送+自定义赠送），申请提现（支持微信、支付宝自提提现），余额转账",
         "apply_terminal":[
             "pc",
@@ -19,7 +19,7 @@
             "qq"
         ],
         "apply_version":[
-            "6.9.0"
+            "6.9.1"
         ],
         "is_home":false
     },
@@ -69,7 +69,7 @@
             "host":"shopxo.com",
             "url":"http:\/\/shopxo.com\/",
             "ip":"127.0.0.1",
-            "time":"2026-06-03 11:39:42"
+            "time":"2026-07-31 01:03:16"
         }
     ]
 }

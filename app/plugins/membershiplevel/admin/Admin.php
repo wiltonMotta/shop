@@ -78,6 +78,52 @@ class Admin
      */
     public function Save($params = [])
     {
+        // 会员日数据校验
+        // 会员日（每月几号、逗号分割、支持 1-31）
+        $member_day = '';
+        if(!empty($params['member_day']))
+        {
+            $day_list = [];
+            foreach(explode(',', str_replace(['，', '、', ';', '；'], ',', $params['member_day'])) as $dv)
+            {
+                $dv = intval(trim($dv));
+                if($dv < 1 || $dv > 31)
+                {
+                    return DataReturn('会员日请输入 1~31 的数字、多个日期用逗号分割', -1);
+                }
+                if(!in_array($dv, $day_list))
+                {
+                    $day_list[] = $dv;
+                }
+            }
+            sort($day_list);
+            $member_day = implode(',', $day_list);
+        }
+        $params['member_day'] = $member_day;
+
+        // 会员日商品折扣（0~0.99、0 表示不启用）
+        if(!empty($params['member_day_discount']) || isset($params['member_day_discount']))
+        {
+            $params['member_day_discount'] = floatval($params['member_day_discount']);
+            if($params['member_day_discount'] < 0 || $params['member_day_discount'] > 0.99)
+            {
+                return DataReturn('会员日商品折扣请输入 0~0.99 的数字（0 代表不打折）', -1);
+            }
+            $params['member_day_discount'] = PriceNumberFormat($params['member_day_discount']);
+        }
+
+        // 会员日积分倍率（1~3）
+        if(empty($params['member_day_integral_rate']))
+        {
+            $params['member_day_integral_rate'] = 1;
+        } else {
+            $params['member_day_integral_rate'] = floatval($params['member_day_integral_rate']);
+            if($params['member_day_integral_rate'] < 1 || $params['member_day_integral_rate'] > 3)
+            {
+                return DataReturn('会员日积分倍率请输入 1~3 的数字（1 为正常积分）', -1);
+            }
+        }
+
         // 会员等级数据
         $level = Service::LevelDataList();
         $params['level_list'] = $level['data'];

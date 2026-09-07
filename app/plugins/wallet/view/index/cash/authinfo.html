@@ -25,8 +25,8 @@
             {{:ModuleInclude('../../../plugins/wallet/view/index/public/nav')}}
             <!-- user menu end -->
 
-            <!-- 是否限制了最低提现金额 -->
-            {{if !isset($plugins_config['cash_minimum_amount']) or $plugins_config['cash_minimum_amount'] elt 0 or ($user_wallet['normal_money'] egt $plugins_config['cash_minimum_amount'])}}
+            <!-- 是否满足提现条件 -->
+            {{if !empty($cash_apply_available.is_available)}}
                 <!-- tips start -->
                 <div class="am-alert am-alert-success wallet-cash-auth-tips">
                     <p class="title">操作提示</p>
@@ -96,9 +96,7 @@
                     <!-- verify win end -->
                 {{/if}}
             {{else /}}
-                <div class="am-alert am-alert-warning">
-                    <p>提现最低金额 {{$currency_symbol}}{{$plugins_config.cash_minimum_amount}} 起</p>
-                </div>
+                {{include file="../../../plugins/wallet/view/index/cash/module/unavailable" /}}
             {{/if}}
         </div>
     </div>

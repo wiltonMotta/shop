@@ -174,58 +174,59 @@ class PointsService
                 // 抵扣金额比例
                 $deduction_price = empty($base['deduction_price']) ? 0 : PriceNumberFormat($base['deduction_price']);
 
-                // 临时记录计算
+                // 临时记录计算（用户指定本次使用数量）
                 $temp_use_integral = $actual_use_integral;
 
-                // 循环处理
+                // 循环处理：统计本单最多可用、再按指定数量截断实际使用
                 $temp_use_integral_total = 0;
+                $order_usable_integral_total = 0;
                 foreach($goods as $k=>$v)
                 {
-                    if($temp_use_integral > 0)
+                    $item_data = [
+                        'order_total_price' => 0,
+                    ];
+                    if(!empty($v['goods_items']))
                     {
-                        $item_data = [
-                            'order_total_price' => 0,
-                        ];
-                        if(!empty($v['goods_items']))
+                        // 减去订单扩展优惠金额后、是否还存在金额
+                        $item_data['order_total_price'] += $v['order_base']['total_price'];
+                        if(!empty($v['order_base']['extension_data']) && is_array($v['order_base']['extension_data']))
                         {
-                            // 减去订单扩展优惠金额后、是否还存在金额
-                            $item_data['order_total_price'] += $v['order_base']['total_price'];
-                            if(!empty($v['order_base']['extension_data']) && is_array($v['order_base']['extension_data']))
+                            $item_data['order_total_price'] -= array_sum(array_filter(array_map(function($v)
                             {
-                                $item_data['order_total_price'] -= array_sum(array_filter(array_map(function($v)
-                                {
-                                    return (isset($v['type']) && $v['type'] == 0 && isset($v['price']) && $v['price'] && isset($v['business']) && !in_array($v['business'], ['plugins-points-exchange', 'plugins-points-deduction'])) ? $v['price'] : 0;
-                                }, $v['order_base']['extension_data'])));
-                            }
+                                return (isset($v['type']) && $v['type'] == 0 && isset($v['price']) && $v['price'] && isset($v['business']) && !in_array($v['business'], ['plugins-points-exchange', 'plugins-points-deduction'])) ? $v['price'] : 0;
+                            }, $v['order_base']['extension_data'])));
                         }
-                        // 订单最低金额条件
-                        if(empty($base['order_total_price']) || $item_data['order_total_price'] >= $base['order_total_price'])
+                    }
+                    // 订单最低金额条件
+                    if(empty($base['order_total_price']) || $item_data['order_total_price'] >= $base['order_total_price'])
+                    {
+                        // 订单金额最多可使用比例
+                        if(!empty($base['order_price_max_rate']))
                         {
-                            // 订单金额最多可使用比例
-                            if(!empty($base['order_price_max_rate']))
-                            {
-                                $item_data['order_total_price'] = PriceNumberFormat($item_data['order_total_price']*($base['order_price_max_rate']/100));
-                            }
+                            $item_data['order_total_price'] = PriceNumberFormat($item_data['order_total_price']*($base['order_price_max_rate']/100));
+                        }
 
-                            // 使用积分
-                            $item_data['use_integral'] = ($item_data['order_total_price'] > 0 && $deduction_price > 0) ? PriceNumberFormat($item_data['order_total_price']/($deduction_price/100), 0) : 0;
+                        // 该仓订单金额对应最多可抵扣积分（未按用户指定数量截断）
+                        $item_max_integral = ($item_data['order_total_price'] > 0 && $deduction_price > 0) ? PriceNumberFormat($item_data['order_total_price']/($deduction_price/100), 0) : 0;
+                        if($order_max_integral > 0 && $item_max_integral > $order_max_integral)
+                        {
+                            $item_max_integral = $order_max_integral;
+                        }
+                        $order_usable_integral_total += $item_max_integral;
 
-                            // 当前可用积分
-                            if($order_max_integral > 0 && $item_data['use_integral'] > $order_max_integral)
-                            {
-                                $item_data['use_integral'] = $order_max_integral;
-                            }
+                        // 实际使用：按用户指定可用积分截断
+                        $item_data['use_integral'] = $item_max_integral;
+                        if($temp_use_integral < $item_data['use_integral'])
+                        {
+                            $item_data['use_integral'] = $temp_use_integral;
+                        }
 
-                            // 减掉积分使用
-                            if($temp_use_integral < $item_data['use_integral'])
-                            {
-                                $item_data['use_integral'] = $temp_use_integral;
-                            }
-
+                        if($item_data['use_integral'] > 0)
+                        {
                             // 抵扣金额
-                            $item_data['discount_price'] = ($item_data['use_integral'] > 0 && $deduction_price > 0) ? PriceNumberFormat($item_data['use_integral']*($deduction_price/100)) : 0;
+                            $item_data['discount_price'] = ($deduction_price > 0) ? PriceNumberFormat($item_data['use_integral']*($deduction_price/100)) : 0;
 
-                            // 加入兑换数据
+                            // 加入抵扣数据
                             $deduction_data[$k] = $item_data;
 
                             // 减掉用户使用积分
@@ -237,8 +238,8 @@ class PointsService
                         }
                     }
                 }
-                // 可用积分
-                $use_integral = $user_integral-$temp_use_integral_total;
+                // 本单可用积分上限 = min(用户积分, 订单可抵扣上限)
+                $use_integral = min($user_integral, $order_usable_integral_total);
                 // 使用积分是否超过指定积分
                 if($temp_use_integral_total < $actual_use_integral)
                 {

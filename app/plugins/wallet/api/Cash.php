@@ -134,12 +134,14 @@ class Cash extends Common
     {
         // 认证方式
         $check_account_list = CashService::UserCheckAccountList($this->user);
+        $cash_apply_available = CashService::CashApplyAvailableData($this->user_wallet, $this->plugins_config);
 
         // 返回数据
         $result = [
             'base'                  => $this->plugins_config,
             'user_wallet'           => $this->user_wallet,
             'check_account_list'    => $check_account_list,
+            'cash_apply_available'  => $cash_apply_available,
         ];
         return DataReturn('success', 0, $result);
     }
@@ -191,12 +193,13 @@ class Cash extends Common
         // 安全校验
         $ret = CashService::CashAuthCheck(['user'=>$this->user, 'plugins_config'=>$this->plugins_config]);
         $check_status = ($ret['code'] == 0) ? $ret['data'] : 0;
+        $cash_apply_available = CashService::CashApplyAvailableData($this->user_wallet, $this->plugins_config);
 
         // 验证通过则读取相关数据
-        if($check_status == 1)
+        if($check_status == 1 && !empty($cash_apply_available['is_available']))
         {
             // 可提现最大金额
-            $can_cash_max_money = CashService::CanCashMaxMoney($this->user_wallet, $this->plugins_config);
+            $can_cash_max_money = $cash_apply_available['can_cash_max_money'];
             $cash_input_max_money = CashService::CashInputMaxMoney($this->user_wallet, $this->plugins_config);
 
             // 默认提现信息
@@ -213,7 +216,8 @@ class Cash extends Common
             'check_status'          => $check_status,
             'base'                  => $this->plugins_config,
             'user_wallet'           => $this->user_wallet,
-            'can_cash_max_money'    => isset($can_cash_max_money) ? $can_cash_max_money : 0,
+            'cash_apply_available'  => $cash_apply_available,
+            'can_cash_max_money'    => isset($can_cash_max_money) ? $can_cash_max_money : $cash_apply_available['can_cash_max_money'],
             'cash_input_max_money'  => isset($cash_input_max_money) ? $cash_input_max_money : 0,
             'default_data'          => empty($default_data) ? null : $default_data,
             'user_cash_type_list'   => empty($user_cash_type_list) ? [] : $user_cash_type_list,

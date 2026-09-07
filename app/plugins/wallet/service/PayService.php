@@ -606,6 +606,20 @@ class PayService
         // 开启事务
         Db::startTrans();
 
+        // 充值支付处理前钩子（如挂账占用额度）
+        $hook_name = 'plugins_service_wallet_recharge_pay_handle_begin';
+        $hook_ret = EventReturnHandle(MyEventTrigger($hook_name, [
+            'hook_name'     => $hook_name,
+            'is_backend'    => true,
+            'params'        => &$params,
+            'recharge_id'   => $params['order']['id'],
+        ]));
+        if(isset($hook_ret['code']) && $hook_ret['code'] != 0)
+        {
+            Db::rollback();
+            return $hook_ret;
+        }
+
         // 更新充值状态
         $upd_data = [
             'status'        => 1,

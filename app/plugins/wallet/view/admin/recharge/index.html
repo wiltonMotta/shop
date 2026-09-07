@@ -35,7 +35,7 @@
                         {{if !empty($payment_list)}}
                             <ul class="am-avg-sm-2 am-avg-md-3 payment-list" data-type="payment">
                                 {{foreach $payment_list as $payment}}
-                                    <li class="am-padding-sm" data-value="{{$payment.id}}">
+                                    <li class="am-padding-sm" data-value="{{$payment.id}}" data-payment="{{$payment.payment}}">
                                         <div class="business-item am-nbfc am-padding-sm am-radius">
                                             {{if !empty($payment.logo)}}
                                                 <img src="{{$payment.logo}}" class="am-radius" />
@@ -50,6 +50,27 @@
                             {{:ModuleInclude('public/not_data')}}
                         {{/if}}
                     </div>
+
+                    <!-- 挂账客户选择扩展 -->
+                    {{if isset($shopxo_is_develop) and $shopxo_is_develop eq true}}
+                        <div class="plugins-tag">
+                            <span>plugins_view_admin_wallet_recharge_pay_content_bottom</span>
+                        </div>
+                    {{/if}}
+                    {{php}}
+                        $hook_name = 'plugins_view_admin_wallet_recharge_pay_content_bottom';
+                        $hook_data = MyEventTrigger($hook_name, ['hook_name'=>$hook_name, 'is_backend'=>true]);
+                        if(!empty($hook_data) && is_array($hook_data))
+                        {
+                            foreach($hook_data as $hook)
+                            {
+                                if(is_string($hook) || is_int($hook))
+                                {
+                                    echo htmlspecialchars_decode($hook);
+                                }
+                            }
+                        }
+                    {{/php}}
 
                     <div class="am-form-popup-submit">
                         <input type="hidden" name="recharge_id" value="" />
@@ -67,4 +88,25 @@
             </div>
         </div>
     </div>
+
+    <!-- 挂账客户弹窗扩展 -->
+    {{if isset($shopxo_is_develop) and $shopxo_is_develop eq true}}
+        <div class="plugins-tag">
+            <span>plugins_view_admin_wallet_recharge_index_bottom</span>
+        </div>
+    {{/if}}
+    {{php}}
+        $hook_name = 'plugins_view_admin_wallet_recharge_index_bottom';
+        $hook_data = MyEventTrigger($hook_name, ['hook_name'=>$hook_name, 'is_backend'=>true]);
+        if(!empty($hook_data) && is_array($hook_data))
+        {
+            foreach($hook_data as $hook)
+            {
+                if(is_string($hook) || is_int($hook))
+                {
+                    echo htmlspecialchars_decode($hook);
+                }
+            }
+        }
+    {{/php}}
 {{/block}}

@@ -455,5 +455,178 @@ class Service
         }
         return [];
     }
+
+    /**
+     * 会员日基础配置
+     * @author  Devil
+     * @blog    http://gong.gg/
+     * @version 1.0.0
+     * @date    2026-09-07
+     * @desc    description
+     */
+    public static function MemberDayConfig()
+    {
+        // 未启用插件则不返回任何数据
+        if(PluginsService::PluginsStatus('membershiplevel') != 1)
+        {
+            return ['day_list'=>[], 'discount_rate'=>0, 'integral_rate'=>1];
+        }
+
+        // 配置缓存（当前请求内有效）
+        static $config = null;
+        if($config === null)
+        {
+            $config = ['day_list'=>[], 'discount_rate'=>0, 'integral_rate'=>1];
+            $ret = PluginsService::PluginsData('membershiplevel', self::$base_config_attachment_field);
+            if($ret['code'] == 0 && !empty($ret['data']))
+            {
+                // 会员日列表（逗号分割、支持中文逗号）
+                $day_list = [];
+                if(!empty($ret['data']['member_day']))
+                {
+                    foreach(explode(',', str_replace(['，', '、', ';', '；'], ',', $ret['data']['member_day'])) as $dv)
+                    {
+                        $dv = intval(trim($dv));
+                        if($dv >= 1 && $dv <= 31 && !in_array($dv, $day_list))
+                        {
+                            $day_list[] = $dv;
+                        }
+                    }
+                }
+                $config['day_list'] = $day_list;
+                // 会员日商品折扣（0~0.99、0 代表不启用会员日折扣）
+                if(isset($ret['data']['member_day_discount']) && $ret['data']['member_day_discount'] > 0)
+                {
+                    $config['discount_rate'] = min(0.99, floatval($ret['data']['member_day_discount']));
+                }
+                // 会员日积分倍率（1~3）
+                if(!empty($ret['data']['member_day_integral_rate']) && $ret['data']['member_day_integral_rate'] > 1)
+                {
+                    $config['integral_rate'] = min(3, floatval($ret['data']['member_day_integral_rate']));
+                }
+            }
+        }
+        return $config;
+    }
+
+    /**
+     * 指定时间是否会员日
+     * @author  Devil
+     * @blog    http://gong.gg/
+     * @version 1.0.0
+     * @date    2026-09-07
+     * @desc    description
+     * @param   [int]          $time [时间戳、默认当前时间]
+     */
+    public static function IsMemberDay($time = 0)
+    {
+        $config = self::MemberDayConfig();
+        if(!empty($config['day_list']))
+        {
+            $day = intval(date('j', empty($time) ? time() : $time));
+            return in_array($day, $config['day_list']);
+        }
+        return false;
+    }
+
+    /**
+     * 商品最终折扣率（会员日折扣与会员等级折扣取最低）
+     * @author  Devil
+     * @blog    http://gong.gg/
+     * @version 1.0.0
+     * @date    2026-09-07
+     * @desc    description
+     * @param   [float]        $level_discount_rate [会员等级折扣率]
+     * @return  [float]                             最终折扣率（0 表示无折扣）
+     */
+    public static function FinalGoodsDiscountRate($level_discount_rate = 0)
+    {
+        // 等级折扣率
+        $level_rate = floatval($level_discount_rate);
+        if($level_rate < 0 || $level_rate >= 1)
+        {
+            $level_rate = 0;
+        }
+
+        // 会员日折扣率（0 表示会员日未设置折扣）
+        $member_day_rate = 0;
+        if(self::IsMemberDay())
+        {
+            $config = self::MemberDayConfig();
+            if($config['discount_rate'] > 0)
+            {
+                $member_day_rate = $config['discount_rate'];
+            }
+        }
+
+        // 等级与会员日同时存在折扣则取最低折扣（不叠加）
+        if($level_rate > 0 && $member_day_rate > 0)
+        {
+            return min($level_rate, $member_day_rate);
+        }
+
+        // 仅存在一种则使用该折扣
+        return ($level_rate > 0) ? $level_rate : $member_day_rate;
+    }
+
+    /**
+     * 会员日是否启用商品折扣
+     * @author  Devil
+     * @blog    http://gong.gg/
+     * @version 1.0.0
+     * @date    2026-09-07
+     * @desc    description
+     */
+    public static function IsMemberDayDiscountEnable()
+    {
+        if(self::IsMemberDay())
+        {
+            $config = self::MemberDayConfig();
+            return $config['discount_rate'] > 0;
+        }
+        return false;
+    }
+
+    /**
+     * 会员日积分倍率
+     * @author  Devil
+     * @blog    http://gong.gg/
+     * @version 1.0.0
+     * @date    2026-09-07
+     * @desc    description
+     * @param   [int]          $time [时间戳、默认当前时间（下单时间）]
+     * @return  [float]              积分倍率（非会员日返回 1）
+     */
+    public static function MemberDayIntegralRate($time = 0)
+    {
+        if(self::IsMemberDay($time))
+        {
+            $config = self::MemberDayConfig();
+            return ($config['integral_rate'] > 1) ? $config['integral_rate'] : 1;
+        }
+        return 1;
+    }
+
+    /**
+     * 是否正价商品（原价等于售价才支持会员折扣、否则为活动/促销价不参与）
+     * @author  Devil
+     * @blog    http://gong.gg/
+     * @version 1.0.0
+     * @date    2026-09-07
+     * @desc    description
+     * @param   [mixed]        $original_price [原价]
+     * @param   [mixed]        $price          [售价]
+     * @return  [boolean]                      是否正价商品
+     */
+    public static function IsNormalPriceGoods($original_price, $price)
+    {
+        // 无原价数据则按正价处理
+        if($original_price === null || $original_price === '' || $price === null || $price === '')
+        {
+            return true;
+        }
+        // 原价与售价一致（容差 0.001）
+        return abs(floatval($original_price) - floatval($price)) < 0.001;
+    }
+
 }
-?>

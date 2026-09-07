@@ -150,6 +150,13 @@ class RechargeService
         }
         if(Db::name('PluginsWalletRecharge')->where($where)->delete())
         {
+            // 充值删除成功钩子
+            $hook_name = 'plugins_service_wallet_recharge_delete_success';
+            MyEventTrigger($hook_name, [
+                'hook_name'     => $hook_name,
+                'is_backend'    => true,
+                'order_id'      => intval($params['id']),
+            ]);
             return DataReturn(MyLang('delete_success'), 0);
         }
         return DataReturn(MyLang('delete_fail'), -100);

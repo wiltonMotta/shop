@@ -519,6 +519,92 @@ class CashService
     }
 
     /**
+     * 提现申请前置可用性
+     * @author  Devil
+     * @blog    http://gong.gg/
+     * @version 1.0.0
+     * @date    2026-07-06
+     * @desc    判断用户当前是否可进入提现申请流程；不可用时附带 PC/手机端共用提示文案
+     * @param   [array]          $wallet         [用户钱包数据]
+     * @param   [array]          $plugins_config [插件配置]
+     * @return  [array]                          [is_available、unavailable_type、金额字段、unavailable_title、unavailable_desc]
+     */
+    public static function CashApplyAvailableData($wallet, $plugins_config)
+    {
+        $can_cash_max_money = self::CanCashMaxMoney($wallet, $plugins_config);
+        $cash_minimum_amount = (isset($plugins_config['cash_minimum_amount']) && $plugins_config['cash_minimum_amount'] > 0) ? PriceNumberFormat($plugins_config['cash_minimum_amount']) : 0;
+        $normal_money = empty($wallet['normal_money']) ? 0 : PriceNumberFormat($wallet['normal_money']);
+        $give_money = empty($wallet['give_money']) ? 0 : PriceNumberFormat($wallet['give_money']);
+        $is_retain_give = !isset($plugins_config['is_cash_retain_give']) || $plugins_config['is_cash_retain_give'] == 1;
+
+        $unavailable_type = '';
+        if($can_cash_max_money <= 0)
+        {
+            $unavailable_type = ($normal_money <= 0) ? 'zero_balance' : 'no_cashable_money';
+        } elseif($cash_minimum_amount > 0 && $can_cash_max_money < $cash_minimum_amount)
+        {
+            $unavailable_type = 'below_minimum';
+        }
+
+        $result = [
+            'is_available'        => empty($unavailable_type) ? 1 : 0,
+            'unavailable_type'    => $unavailable_type,
+            'can_cash_max_money'  => $can_cash_max_money,
+            'cash_minimum_amount' => $cash_minimum_amount,
+            'normal_money'        => $normal_money,
+            'give_money'          => $give_money,
+            'is_retain_give'      => $is_retain_give ? 1 : 0,
+            'unavailable_title'   => '',
+            'unavailable_desc'    => '',
+        ];
+        if(!empty($unavailable_type))
+        {
+            $message = self::CashApplyUnavailableText($unavailable_type, $result);
+            $result['unavailable_title'] = $message['unavailable_title'];
+            $result['unavailable_desc'] = $message['unavailable_desc'];
+        }
+        return $result;
+    }
+
+    /**
+     * 提现不可用提示文案
+     * @author  Devil
+     * @blog    http://gong.gg/
+     * @version 1.0.0
+     * @date    2026-07-06
+     * @desc    按不可用类型生成标题与说明，供 PC 与手机端直接展示
+     * @param   [string]         $unavailable_type [不可用类型（zero_balance/no_cashable_money/below_minimum）]
+     * @param   [array]          $data             [CashApplyAvailableData 返回的金额相关字段]
+     * @return  [array]                            [unavailable_title、unavailable_desc]
+     */
+    public static function CashApplyUnavailableText($unavailable_type, $data = [])
+    {
+        $symbol = ResourcesService::CurrencyDataSymbol(['is_only_currency_default'=>1]);
+        switch($unavailable_type)
+        {
+            case 'zero_balance' :
+                return [
+                    'unavailable_title' => '当前暂无可提现余额',
+                    'unavailable_desc'  => '您的钱包可用余额为 '.$symbol.'0.00，暂无法发起提现申请。请先充值或等待账户入账后再试。',
+                ];
+
+            case 'no_cashable_money' :
+                $give_tip = (!empty($data['is_retain_give'])) ? '（赠送金额 '.$symbol.$data['give_money'].' 不可提现）' : '';
+                return [
+                    'unavailable_title' => '当前余额不可提现',
+                    'unavailable_desc'  => '您的可用余额 '.$symbol.$data['normal_money'].' 中，可提现部分为 '.$symbol.'0.00'.$give_tip.'，暂无法发起提现申请。',
+                ];
+
+            case 'below_minimum' :
+            default :
+                return [
+                    'unavailable_title' => '未达到最低提现金额',
+                    'unavailable_desc'  => '当前可提现 '.$symbol.$data['can_cash_max_money'].'，平台要求单次提现最低 '.$symbol.$data['cash_minimum_amount'].'，余额不足最低门槛，暂无法发起提现申请。',
+                ];
+        }
+    }
+
+    /**
      * 提现领取数据
      * @author   Devil
      * @blog    http://gong.gg/
