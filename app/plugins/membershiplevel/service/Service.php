@@ -47,6 +47,15 @@ class Service
      */
     public static function LevelDataList($params = [])
     {
+        // 干洗服务件次校验（非负整数）
+        if(isset($params['dry_clean_service']) && $params['dry_clean_service'] !== '')
+        {
+            if(intval($params['dry_clean_service']) < 0 || strval(intval($params['dry_clean_service'])) !== strval($params['dry_clean_service'] * 1))
+            {
+                $params['dry_clean_service'] = 0;
+            }
+        }
+
         // 数据字段
         $data_field = 'level_list';
 
@@ -79,6 +88,9 @@ class Service
                 
                 // 图片地址
                 $v['images_url'] = ResourcesService::AttachmentPathViewHandle($v['images_url']);
+                
+                // 会员卡背景图片
+                $v['card_bg_image'] = empty($v['card_bg_image']) ? '' : ResourcesService::AttachmentPathViewHandle($v['card_bg_image']);
 
                 // 时间
                 $v['operation_time_time'] = empty($v['operation_time']) ? '' : date('Y-m-d H:i:s', $v['operation_time']);
@@ -225,8 +237,8 @@ class Service
         // 数据字段
         $data_field = 'level_list';
 
-        // 附件
-        $data_fields = ['images_url'];
+        // 附件（等级图标、会员卡背景图）
+        $data_fields = ['images_url', 'card_bg_image'];
         $attachment = ResourcesService::AttachmentParams($params, $data_fields);
 
         // 数据
@@ -235,6 +247,8 @@ class Service
             'rules_min'             => $params['rules_min'],
             'rules_max'             => $params['rules_max'],
             'images_url'            => $attachment['data']['images_url'],
+            'card_bg_image'         => empty($attachment['data']['card_bg_image']) ? '' : $attachment['data']['card_bg_image'],
+            'dry_clean_service'     => (empty($params['dry_clean_service'])) ? 0 : intval($params['dry_clean_service']),
             'is_enable'             => isset($params['is_enable']) ? intval($params['is_enable']) : 0,
             'discount_rate'         => isset($params['discount_rate']) ? $params['discount_rate'] : 0,
             'order_price'           => empty($params['order_price']) ? 0.00 : PriceNumberFormat($params['order_price']),

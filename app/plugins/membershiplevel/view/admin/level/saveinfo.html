@@ -36,6 +36,29 @@
                     </div>
                 </div>
                 
+                <div class="am-form-group am-form-file">
+                    <label class="am-block">会员卡背景图片<span class="am-form-group-label-tips">该等级会员卡背景，建议 850*500px</span></label>
+                    <div class="am-form-file-upload-container">
+                        <ul class="plug-file-upload-view card_bg_image-images-view" data-form-name="card_bg_image" data-max-number="1" data-dialog-type="images">
+                            {{if !empty($data['card_bg_image'])}}
+                                <li>
+                                    <input type="text" name="card_bg_image" value="{{$data.card_bg_image}}" data-validation-message="请上传会员卡背景图片" />
+                                    <img src="{{$data.card_bg_image}}" />
+                                    <i class="iconfont icon-close"></i>
+                                </li>
+                            {{/if}}
+                        </ul>
+                        <div class="plug-file-upload-submit" data-view-tag="ul.card_bg_image-images-view">
+                            <i class="iconfont icon-add"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="am-form-group">
+                    <label>干洗服务<span class="am-form-group-label-tips">单位：件次/年，留空或0表示无</span></label>
+                    <input type="number" name="dry_clean_service" placeholder="件次/年" min="0" step="1" data-validation-message="请输入有效的干洗服务件次" class="am-radius" {{if isset($data['dry_clean_service']) and $data['dry_clean_service'] > 0}} value="{{$data.dry_clean_service}}"{{/if}} />
+                </div>
+
                 <div class="am-alert am-alert-warning" data-am-alert="">
                     <button type="button" class="am-close">&times;</button>
                     <p>

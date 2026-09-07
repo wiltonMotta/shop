@@ -12,6 +12,7 @@ namespace app\plugins\membershiplevel\api;
 
 use app\plugins\membershiplevel\api\Common;
 use app\plugins\membershiplevel\service\Service;
+use think\facade\Db;
 
 /**
  * 会员等级 - 用户中心
@@ -67,6 +68,18 @@ class User extends Common
             $current_level = Service::LevelDiscountData(Service::UserLevelMatching($user), $user);
         }
 
+        // 用户累计值（会员卡底部展示：按规则模式取累计消费或积分）
+        $user_total = 0;
+        if(!empty($user))
+        {
+            if($level_rules == 1)
+            {
+                $user_total = (float) Db::name('Order')->where(['user_id'=>$user['id'], 'status'=>4])->sum('total_price');
+            } else {
+                $user_total = (empty($user['integral'])) ? 0 : intval($user['integral']);
+            }
+        }
+
         // 等级列表（仅启用、按规则最小值升序）
         $level_data = Service::LevelDataList();
         $temp = [];
@@ -98,6 +111,8 @@ class User extends Common
                 'rules_min'             => empty($v['rules_min']) ? 0 : floatval($v['rules_min']),
                 'rules_max'             => empty($v['rules_max']) ? 0 : floatval($v['rules_max']),
                 'rules_text'            => self::RulesText($rule_unit, $v),
+                'card_bg_image'         => empty($v['card_bg_image']) ? '' : $v['card_bg_image'],
+                'dry_clean_service'     => empty($v['dry_clean_service']) ? 0 : intval($v['dry_clean_service']),
                 'is_current'            => ($current_level_id != '' && $v['id'] == $current_level_id) ? 1 : 0,
                 'daily'                 => self::DiscountTextView($v),
                 'birthday'              => self::DiscountTextView($v, 'birthday'),
@@ -107,6 +122,7 @@ class User extends Common
         return DataReturn('success', 0, [
             'card_bg_image'         => $card_bg_image,
             'is_birthday_today'     => $is_birthday_today ? 1 : 0,
+            'user_total'            => $user_total,
             'current_level_id'      => $current_level_id,
             'level_list'            => $level_list,
         ]);
