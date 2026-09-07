@@ -36,3 +36,5 @@ node_modules/
 
 # 上传文件
 public/static/upload/
+# Let's Encrypt 证书验证临时文件
+public/.well-known/acme-challenge/

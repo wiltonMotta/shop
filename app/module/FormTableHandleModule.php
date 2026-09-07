@@ -1053,7 +1053,9 @@ class FormTableHandleModule
                             // 数据字段
                             $field = empty($pv['field']) ? 'id' : $pv['field'];
                             $stats_fun = empty($pv['fun']) ? 'sum' : $pv['fun'];
-                            $res = $this->db->field($stats_fun.'('.$field.') as value')->find();
+                            // 使用独立查询对象执行统计、避免主查询字段/条件残留（field 为追加模式、无 GROUP BY 时 only_full_group_by 报错）
+                            $stats_db = (!empty($form_data['table_obj']) && is_object($form_data['table_obj'])) ? clone $form_data['table_obj'] : Db::name($form_data['table_name']);
+                            $res = $stats_db->where($this->where)->field($stats_fun.'('.$field.') as value')->find();
                             $value = (empty($res) || empty($res['value'])) ? 0 : $res['value'];
                             $stats_data[] = $pv['name'].$value.(empty($pv['unit']) ? '' : $pv['unit']);
                         }
