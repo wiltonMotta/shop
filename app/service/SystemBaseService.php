@@ -171,6 +171,7 @@ class SystemBaseService
             'common_app_is_head_vice_nav'                        => (int) MyC('common_app_is_head_vice_nav', 0, true),
             
             // 商品分类相关
+            'category_show_level'                                => MyC('common_show_goods_category_level', 0, true),
             'common_show_goods_category_level'                   => (int) MyC('common_show_goods_category_level', 0, true),
             'common_goods_category_model_icon_type'              => (int) MyC('common_goods_category_model_icon_type', 0, true),
             'common_goods_category_is_search_alone'              => (int) MyC('common_goods_category_is_search_alone', 0, true),
