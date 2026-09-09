@@ -1,0 +1,6 @@
+User-agent: *
+Disallow: /adm
+Disallow: /inst
+Disallow: /ap
+Disallow: /notify
+Disallow: /respond

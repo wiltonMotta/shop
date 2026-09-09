@@ -1,0 +1,69 @@
+{{:ModuleInclude('public/header')}}
+
+<!-- header top nav -->
+{{:ModuleInclude('public/header_top_nav')}}
+
+<!-- content start -->
+<div class="am-g am-container plugins-points plugins-points-search">
+    <!-- 场景化顶栏：面包屑 + 积分兑换专用搜索 -->
+    <div class="points-search-toolbar am-margin-top-module am-radius am-background-white am-padding-main">
+        <div class="am-cf am-margin-bottom-xs">
+            <div class="am-fl">
+                <a href="{{$points_home_url}}" class="points-search-back am-text-default">
+                    <i class="iconfont icon-home"></i>
+                    <span>{{:MyLang('shop_default_name')}}</span>
+                </a>
+            </div>
+            {{if !empty($user)}}
+                <a href="{{:MyUrl('index/userintegral/index')}}" class="am-fr points-search-integral" target="_blank" rel="noopener noreferrer">
+                    <i class="iconfont icon-points-terse"></i>
+                    <span>{{:MyLang('layout.page_user_integral_list')}}</span>
+                    <strong>{{if isset($user_integral.integral)}}{{$user_integral.integral}}{{else /}}0{{/if}}</strong>
+                </a>
+            {{/if}}
+        </div>
+        <form class="points-search-form am-form" action="{{$search_url}}" method="POST">
+            <div class="points-search-input-group am-radius am-nbfc">
+                <i class="iconfont icon-search am-fl"></i>
+                <input type="text" name="wd" class="am-fl" placeholder="{{:MyLang('exchange_search_placeholder')}}" value="{{if !empty($search_keywords)}}{{$search_keywords}}{{/if}}" autocomplete="off" />
+                <button type="submit" class="am-btn am-btn-primary am-radius am-fr">{{:MyLang('search_title')}}</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- 结果摘要 -->
+    <div class="points-search-summary am-margin-top-module am-margin-bottom-sm am-cf">
+        <p class="am-fl am-margin-0">
+            {{if !empty($search_keywords)}}
+                <span>{{:MyLang('exchange_search_keywords_label')}}</span>
+                <span>「</span><strong class="am-text-warning">{{$search_keywords}}</strong><span>」</span>
+            {{else /}}
+                <span>{{:MyLang('exchange_search_all_goods')}}</span>
+            {{/if}}
+            <span>，{{:MyLang('total_title')}}</span>
+            <strong class="am-text-danger">{{$data_total}}</strong>
+            <span>{{:MyLang('exchange_search_goods_unit')}}</span>
+        </p>
+        {{if !empty($search_keywords)}}
+            <a href="{{$search_url}}" class="am-fr am-text-xs am-margin-top-xs">{{:MyLang('clear_search_where')}}</a>
+        {{/if}}
+    </div>
+
+    <!-- 商品列表 -->
+    {{if !empty($goods_grid_module_data.goods_list)}}
+        <div class="goods-list {{if isset($plugins_config.is_pure_exchange_modal) and $plugins_config.is_pure_exchange_modal eq 1}}pure-exchange-modal{{/if}}">
+            {{:ModuleInclude('module/goods/grid/base', $goods_grid_module_data)}}
+        </div>
+        {{if !empty($page_html)}}
+            <div class="am-nbfc am-margin-top-module">
+                {{$page_html|raw}}
+            </div>
+        {{/if}}
+    {{else /}}
+        {{:ModuleInclude('public/not_data', ['msg'=>empty($search_keywords) ? MyLang('exchange_search_not_data_empty') : MyLang('exchange_search_not_data_not_found')])}}
+    {{/if}}
+</div>
+<!-- content end -->
+
+<!-- footer start -->
+{{:ModuleInclude('public/footer')}}

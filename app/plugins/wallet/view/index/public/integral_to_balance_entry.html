@@ -1,0 +1,10 @@
+<div class="am-margin-top-xs am-margin-bottom-xs am-background-grey-f9 am-padding-sm am-radius-lg" data-points="{{$integral_to_balance.integral_to_balance_points}}">
+    <span>{{$integral_to_balance.text_entry_intro_before}}<strong>{{$integral_to_balance.currency_symbol}}{{$integral_to_balance.integral_to_balance_estimate}}</strong>{{$integral_to_balance.text_entry_intro_after}}</span>
+    {{if isset($integral_to_balance.can_exchange) and $integral_to_balance.can_exchange eq 1}}
+        <button type="button" class="submit-popup am-btn am-btn-warning am-btn-xs am-radius am-margin-left-sm am-margin-bottom-0" data-url="{{:PluginsHomeUrl('wallet', 'wallet', 'integralbalanceinfo')}}" data-title="{{$integral_to_balance.text_popup_title}}" data-full="0">{{$integral_to_balance.text_btn_exchange}}</button>
+    {{else /}}
+        {{if !empty($integral_to_balance.display_message)}}
+            <span class="am-text-xs am-color-grey am-margin-left-sm">{{$integral_to_balance.display_message}}</span>
+        {{/if}}
+    {{/if}}
+</div>
